@@ -33,6 +33,12 @@
 			this.btnLine = new System.Windows.Forms.Button();
 			this.btnColor = new System.Windows.Forms.Button();
 			this.btnWidth = new System.Windows.Forms.Button();
+			this.btnCircle = new System.Windows.Forms.Button();
+			this.btnRectangle = new System.Windows.Forms.Button();
+			this.btnEllipse = new System.Windows.Forms.Button();
+			this.btnTriangle = new System.Windows.Forms.Button();
+			this.btnPentagon = new System.Windows.Forms.Button();
+			this.btnHexagon = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.drawBoard)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -64,7 +70,7 @@
 			this.btnLine.Name = "btnLine";
 			this.btnLine.Size = new System.Drawing.Size(35, 35);
 			this.btnLine.TabIndex = 1;
-			this.btnLine.Text = "Li";
+			this.btnLine.Text = "Lin";
 			this.btnLine.UseVisualStyleBackColor = true;
 			this.btnLine.Click += new System.EventHandler(this.btnLine_Click);
 			// 
@@ -91,11 +97,77 @@
 			this.btnWidth.UseVisualStyleBackColor = true;
 			this.btnWidth.Click += new System.EventHandler(this.btnWidth_Click);
 			// 
+			// btnCircle
+			// 
+			this.btnCircle.Location = new System.Drawing.Point(0, 35);
+			this.btnCircle.Name = "btnCircle";
+			this.btnCircle.Size = new System.Drawing.Size(35, 35);
+			this.btnCircle.TabIndex = 4;
+			this.btnCircle.Text = "Cir";
+			this.btnCircle.UseVisualStyleBackColor = true;
+			this.btnCircle.Click += new System.EventHandler(this.btnCircle_Click);
+			// 
+			// btnRectangle
+			// 
+			this.btnRectangle.Location = new System.Drawing.Point(0, 70);
+			this.btnRectangle.Name = "btnRectangle";
+			this.btnRectangle.Size = new System.Drawing.Size(35, 35);
+			this.btnRectangle.TabIndex = 5;
+			this.btnRectangle.Text = "Re";
+			this.btnRectangle.UseVisualStyleBackColor = true;
+			this.btnRectangle.Click += new System.EventHandler(this.btnRectangle_Click);
+			// 
+			// btnEllipse
+			// 
+			this.btnEllipse.Location = new System.Drawing.Point(0, 105);
+			this.btnEllipse.Name = "btnEllipse";
+			this.btnEllipse.Size = new System.Drawing.Size(35, 35);
+			this.btnEllipse.TabIndex = 6;
+			this.btnEllipse.Text = "Ell";
+			this.btnEllipse.UseVisualStyleBackColor = true;
+			this.btnEllipse.Click += new System.EventHandler(this.btnEllipse_Click);
+			// 
+			// btnTriangle
+			// 
+			this.btnTriangle.Location = new System.Drawing.Point(0, 140);
+			this.btnTriangle.Name = "btnTriangle";
+			this.btnTriangle.Size = new System.Drawing.Size(35, 35);
+			this.btnTriangle.TabIndex = 7;
+			this.btnTriangle.Text = "Tri";
+			this.btnTriangle.UseVisualStyleBackColor = true;
+			this.btnTriangle.Click += new System.EventHandler(this.btnTriangle_Click);
+			// 
+			// btnPentagon
+			// 
+			this.btnPentagon.Location = new System.Drawing.Point(0, 175);
+			this.btnPentagon.Name = "btnPentagon";
+			this.btnPentagon.Size = new System.Drawing.Size(35, 35);
+			this.btnPentagon.TabIndex = 8;
+			this.btnPentagon.Text = "Pe";
+			this.btnPentagon.UseVisualStyleBackColor = true;
+			this.btnPentagon.Click += new System.EventHandler(this.btnPentagon_Click);
+			// 
+			// btnHexagon
+			// 
+			this.btnHexagon.Location = new System.Drawing.Point(0, 210);
+			this.btnHexagon.Name = "btnHexagon";
+			this.btnHexagon.Size = new System.Drawing.Size(35, 35);
+			this.btnHexagon.TabIndex = 9;
+			this.btnHexagon.Text = "He";
+			this.btnHexagon.UseVisualStyleBackColor = true;
+			this.btnHexagon.Click += new System.EventHandler(this.btnHexagon_Click);
+			// 
 			// mainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(835, 600);
+			this.Controls.Add(this.btnHexagon);
+			this.Controls.Add(this.btnPentagon);
+			this.Controls.Add(this.btnTriangle);
+			this.Controls.Add(this.btnEllipse);
+			this.Controls.Add(this.btnRectangle);
+			this.Controls.Add(this.btnCircle);
 			this.Controls.Add(this.btnWidth);
 			this.Controls.Add(this.btnColor);
 			this.Controls.Add(this.btnLine);
@@ -115,6 +187,12 @@
 		private System.Windows.Forms.Button btnLine;
 		private System.Windows.Forms.Button btnColor;
 		private System.Windows.Forms.Button btnWidth;
+		private System.Windows.Forms.Button btnCircle;
+		private System.Windows.Forms.Button btnRectangle;
+		private System.Windows.Forms.Button btnEllipse;
+		private System.Windows.Forms.Button btnTriangle;
+		private System.Windows.Forms.Button btnPentagon;
+		private System.Windows.Forms.Button btnHexagon;
 	}
 }
 
