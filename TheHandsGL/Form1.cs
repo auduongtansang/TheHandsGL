@@ -159,6 +159,16 @@ namespace TheHandsGL
 			btnWidth.Text = userWidth.ToString("0.0");
 		}
 
+		private void drawBoard_KeyDown(object sender, KeyEventArgs e)
+		{
+			//Sự kiện "bấm bàn phím"
+			if (e.KeyCode == Keys.Z && e.Control && shapes.Count > 0)
+			{
+				shapes.RemoveAt(shapes.Count - 1);
+				isShapesChanged = true;
+			}
+		}
+
 		private void btnColor_Click(object sender, EventArgs e)
 		{
 			//Sự kiện "chọn màu"
