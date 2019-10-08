@@ -1,5 +1,5 @@
 # TheHandsGL
-Ứng dụng Paint đơn giản dùng SharpGL (C# OpenGL Wrapper)
+Ứng dụng vẽ hình đơn giản dùng SharpGL (C# OpenGL Wrapper)
 
 ## Yêu cầu cài đặt
   - Windows 10 SDK và Visual Studio 2019 (cập nhật Windows và Visual Studio 2019 phiên bản mới nhất là được)
