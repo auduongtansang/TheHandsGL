@@ -25,7 +25,7 @@ namespace TheHandsGL
 		Point pStart = new Point(0, 0), pEnd = new Point(0, 0);
 		//Danh sách các hình đã vẽ
 		List<Shape> shapes = new List<Shape>();
-		//Biến đánh dấu danh sách hình vẽ bị thay đổi, cần phải vẽ lại
+		//Biến đánh dấu rằng danh sách hình vẽ đã bị thay đổi, cần phải vẽ lại
 		bool isShapesChanged = true;
 
 		public mainForm()
@@ -56,7 +56,7 @@ namespace TheHandsGL
 
 			//Chọn chế độ chiếu
 			gl.MatrixMode(OpenGL.GL_PROJECTION);
-			//Chọn ma trận chiếu là mà trận đơn vị
+			//Chọn ma trận chiếu là ma trận đơn vị
 			gl.LoadIdentity();
 			//Set viewport theo kích thước mới
 			gl.Viewport(0, 0, drawBoard.Width, drawBoard.Height);
@@ -72,7 +72,7 @@ namespace TheHandsGL
 			
 			if (isDrawing == false && isShapesChanged == true)
 			{
-				//Chỉ vẽ khi người dùng đã thao tác xong, và danh sách hình vẽ bị thay đổi
+				//Chỉ vẽ khi người dùng đã nhả chuột, và danh sách hình vẽ đã bị thay đổi
 
 				//Lấy đối tượng OpenGL
 				OpenGL gl = drawBoard.OpenGL;
@@ -152,6 +152,8 @@ namespace TheHandsGL
 			{
 				pEnd = e.Location;
 
+                //Liên tục vẽ khi người dùng nhấn giữ chuột và kéo đi
+
 				//Lấy đối tượng OpenGL
 				OpenGL gl = drawBoard.OpenGL;
 
@@ -162,7 +164,7 @@ namespace TheHandsGL
 				foreach (Shape shape in shapes)
 					shape.draw(gl);
 
-				//Tạo hình vẽ mới và vẽ hình này ra (không thêm hình này vào list vì chưa vẽ xong)
+				//Tạo hình vẽ mới và vẽ hình này ra (không thêm hình này vào danh sách vì chưa nhả chuột)
 				Shape newShape = new Shape(userColor, userWidth, userType);
 				switch (userType)
 				{
@@ -232,19 +234,19 @@ namespace TheHandsGL
 
 		private void btnTriangle_Click(object sender, EventArgs e)
 		{
-			//Sự kiện "chọn vẽ hình tam giác"
+			//Sự kiện "chọn vẽ hình tam giác đều"
 			userType = Shape.shapeType.TRIANGLE;
 		}
 
 		private void btnPentagon_Click(object sender, EventArgs e)
 		{
-			//Sự kiện "chọn vẽ hình ngũ giác"
+			//Sự kiện "chọn vẽ hình ngũ giác đều"
 			userType = Shape.shapeType.PENTAGON;
 		}
 
 		private void btnHexagon_Click(object sender, EventArgs e)
 		{
-			//Sự kiện "chọn vẽ hình lục giác"
+			//Sự kiện "chọn vẽ hình lục giác đều"
 			userType = Shape.shapeType.HEXAGON;
 		}
 
@@ -281,9 +283,9 @@ namespace TheHandsGL
 		public enum shapeType { NONE, LINE, CIRCLE, RECTANGLE, ELLIPSE, TRIANGLE, PENTAGON, HEXAGON }
 
 		//Màu nét vẽ
-		public Color lineColor;
+		public Color color;
 		//Độ dày nét vẽ
-		public float lineWidth;
+		public float width;
 		//Loại hình vẽ
 		public shapeType type;
 		//Danh sách các điểm neo. Lưu ý, thứ tự các điểm neo phải chính xác (ngược hay thuận đồng hồ đều được) để OpenGL vẽ cho đúng
@@ -291,37 +293,47 @@ namespace TheHandsGL
 
 		/*
 		 * Điểm neo là những điểm nối lại với nhau sẽ thành hình cần vẽ. Vi dụ:
-		 * - Đường thẳng có 2 điểm neo là điểm đầu và điểm cuối
+		 * - Đường thẳng có 2 điểm neo: điểm đầu và điểm cuối
 		 * - Tam giác có 3 điểm neo (if you know what i mean)
-		 * - Đường tròn có rất nhiều điểm neo, nối lại với nhau bằng các đường thẳng rất ngắn => gần tròn
+		 * - Đường tròn có rất nhiều điểm neo sát nhau, nối lại với nhau bằng các đường thẳng rất ngắn => gần tròn
 		 * - Vân vân...
 		*/
 
 		public Shape(Color userColor, float userWidth, shapeType userType)
 		{
 			//Hàm khởi tạo
-			lineColor = userColor;
-			lineWidth = userWidth;
+			color = userColor;
+			width = userWidth;
 			type = userType;
 			points = new List<Point>();
 		}
 
 		public void draw(OpenGL gl)
 		{
-			//Set độ dày nét vẽ
-			gl.LineWidth(lineWidth);
 			//Set màu nét vẽ (đang bị lỗi)
-			gl.Color(lineColor.R / 255, lineColor.G / 255, lineColor.B / 255);
+			gl.Color(color.R / 255, color.G / 255, color.B / 255);
 
-			//Nếu vẽ đường thằng, không cần nối từ điểm cuối ngược lại điểm đầu
-			if (type == shapeType.LINE)
-				gl.Begin(OpenGL.GL_LINES);
-			//Đối với những hình khác, cần phải nối điểm cuối với điểm đầu để được hình khép kín
-			else
-				gl.Begin(OpenGL.GL_LINE_LOOP);
+            //Nếu vẽ đường thằng, không cần nối từ điểm cuối ngược lại điểm đầu
+            if (type == shapeType.LINE)
+            {
+                gl.LineWidth(width);
+                gl.Begin(OpenGL.GL_LINES);
+            }
+            //Nếu vẽ đường tròn, phải vẽ từng điểm bằng thuật toán Midpoint
+            else if (type == shapeType.CIRCLE || type == shapeType.ELLIPSE)
+            {
+                gl.PointSize(width);
+                gl.Begin(OpenGL.GL_POINTS);
+            }
+            //Các hình còn lại, chỉ cần nối n điểm với nhau bằng n đường thẳng, tạo thành vòng khép kín
+            else
+            {
+                gl.LineWidth(width);
+                gl.Begin(OpenGL.GL_LINE_LOOP);
+            }
 
-			//Liệt kê những điểm neo theo đúng thứ tự
-			foreach (Point point in points)
+            //Liệt kê những điểm neo theo đúng thứ tự
+            foreach (Point point in points)
 				gl.Vertex(point.X, gl.RenderContextProvider.Height - point.Y);
 
 			gl.End();
