@@ -182,6 +182,7 @@ namespace TheHandsGL
                         p = oneEighth[i];
                         newShape.points.Add(new Point(-p.X + pCenter.X, p.Y + pCenter.Y));
                     }
+                    oneEighth.Clear();
 
                     break;
 				case Shape.shapeType.RECTANGLE:
@@ -316,6 +317,7 @@ namespace TheHandsGL
                             p = oneEighth[i];
                             newShape.points.Add(new Point(-p.X + pCenter.X, p.Y + pCenter.Y));
                         }
+                        oneEighth.Clear();
 
                         break;
 					case Shape.shapeType.RECTANGLE:
