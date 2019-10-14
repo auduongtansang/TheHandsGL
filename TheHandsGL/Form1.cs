@@ -265,7 +265,7 @@ namespace TheHandsGL
 		{
 			//Sự kiện "thay đổi độ dày nét vẽ"
 			userWidth += 0.5f;
-			if (userWidth > 5)
+			if (userWidth > 3)
 				userWidth = 1.0f;
 			btnWidth.Text = "Width: " + userWidth.ToString("0.0");
 		}
@@ -429,7 +429,7 @@ namespace TheHandsGL
 			//Tính điểm (0,0) ở góc trên và tăng dần từ trên xuống nên thành ra ngược chiều kim đồng hồ
 
 			//Tính bán kính r
-			double r = Math.Min(Math.Abs(pStart.X - pEnd.X), Math.Abs(pStart.Y - pEnd.Y)) / 2;
+			double r = Math.Sqrt(Math.Pow(pStart.X - pEnd.X, 2) + Math.Pow(pStart.Y - pEnd.Y, 2)) / 2;
 
 			//Tính p0
 			double decision = 5 / 4 - r;
@@ -451,18 +451,24 @@ namespace TheHandsGL
 			newShape.points.Add(new Point(x + pCenter.X, y + pCenter.Y));
 
 			//Thuật toán Midpoint
+
+			int x2 = x * 2, y2 = y * 2;
+
 			while (y > x)
 			{
 				if (decision < 0)
 				{
+					decision += x2 + 3;
 					x++;
-					decision += 2 * x + 1;
+					x2 += 2;
 				}
 				else
 				{
-					y--;
+					decision += x2 - y2 + 5;
 					x++;
-					decision += 2 * (x - y) + 1;
+					y--;
+					x2 += 2;
+					y2 -= 2;
 				}
 
 				//Lấy đối xứng điểm tìm được qua trục y = x và tịnh tiến theo vector (xC,yC)
