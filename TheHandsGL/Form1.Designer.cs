@@ -42,6 +42,10 @@
 			this.btnClear = new System.Windows.Forms.Button();
 			this.lbUndo = new System.Windows.Forms.Label();
 			this.lbTime = new System.Windows.Forms.Label();
+			this.lbSelf = new System.Windows.Forms.Label();
+			this.tbSelf = new System.Windows.Forms.TextBox();
+			this.lbBuildIn = new System.Windows.Forms.Label();
+			this.tbBuildIn = new System.Windows.Forms.TextBox();
 			((System.ComponentModel.ISupportInitialize)(this.drawBoard)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -193,11 +197,53 @@
 			this.lbTime.TabIndex = 12;
 			this.lbTime.Text = "Time:";
 			// 
+			// lbSelf
+			// 
+			this.lbSelf.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.lbSelf.AutoSize = true;
+			this.lbSelf.Location = new System.Drawing.Point(490, 659);
+			this.lbSelf.Name = "lbSelf";
+			this.lbSelf.Size = new System.Drawing.Size(32, 17);
+			this.lbSelf.TabIndex = 13;
+			this.lbSelf.Text = "Self";
+			// 
+			// tbSelf
+			// 
+			this.tbSelf.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.tbSelf.Location = new System.Drawing.Point(520, 657);
+			this.tbSelf.Name = "tbSelf";
+			this.tbSelf.ReadOnly = true;
+			this.tbSelf.Size = new System.Drawing.Size(100, 22);
+			this.tbSelf.TabIndex = 14;
+			// 
+			// lbBuildIn
+			// 
+			this.lbBuildIn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.lbBuildIn.AutoSize = true;
+			this.lbBuildIn.Location = new System.Drawing.Point(627, 659);
+			this.lbBuildIn.Name = "lbBuildIn";
+			this.lbBuildIn.Size = new System.Drawing.Size(55, 17);
+			this.lbBuildIn.TabIndex = 15;
+			this.lbBuildIn.Text = "Build-in";
+			// 
+			// tbBuildIn
+			// 
+			this.tbBuildIn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.tbBuildIn.Location = new System.Drawing.Point(680, 657);
+			this.tbBuildIn.Name = "tbBuildIn";
+			this.tbBuildIn.ReadOnly = true;
+			this.tbBuildIn.Size = new System.Drawing.Size(100, 22);
+			this.tbBuildIn.TabIndex = 16;
+			// 
 			// mainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(800, 690);
+			this.Controls.Add(this.tbBuildIn);
+			this.Controls.Add(this.lbBuildIn);
+			this.Controls.Add(this.tbSelf);
+			this.Controls.Add(this.lbSelf);
 			this.Controls.Add(this.lbTime);
 			this.Controls.Add(this.lbUndo);
 			this.Controls.Add(this.btnClear);
@@ -236,6 +282,10 @@
 		private System.Windows.Forms.Button btnClear;
 		private System.Windows.Forms.Label lbUndo;
 		private System.Windows.Forms.Label lbTime;
+		private System.Windows.Forms.Label lbSelf;
+		private System.Windows.Forms.TextBox tbSelf;
+		private System.Windows.Forms.Label lbBuildIn;
+		private System.Windows.Forms.TextBox tbBuildIn;
 	}
 }
 

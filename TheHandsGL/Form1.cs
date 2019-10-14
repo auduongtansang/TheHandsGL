@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace TheHandsGL
 {
@@ -81,8 +82,15 @@ namespace TheHandsGL
 				gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
 
 				//Vẽ lại tất cả hình
-				foreach (Shape shape in shapes)
-					shape.draw(gl);
+				if (shapes.Count > 0)
+				{
+					for (int i = 0; i < shapes.Count - 1; i++)
+						shapes[i].draw(gl);
+					Stopwatch watch = Stopwatch.StartNew();
+					shapes[shapes.Count - 1].draw(gl);
+					watch.Stop();
+					tbSelf.Text = watch.ElapsedTicks.ToString() + " ticks";
+				}
 
 				gl.Flush();
 				isShapesChanged = false;
@@ -94,6 +102,7 @@ namespace TheHandsGL
 			//Sự kiện "nhấn giữ chuột", bắt đầu quá trình vẽ
 			pStart = pEnd = e.Location;
 			isDrawing = true;
+			tbSelf.Text = "";
 		}
 
 		private void drawBoard_MouseUp(object sender, MouseEventArgs e)
