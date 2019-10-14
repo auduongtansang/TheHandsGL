@@ -254,13 +254,20 @@ namespace TheHandsGL
 			userType = Shape.shapeType.HEXAGON;
 		}
 
+		private void btnClear_Click(object sender, EventArgs e)
+		{
+			//Sự kiện "xóa toàn bộ"
+			shapes.Clear();
+			isShapesChanged = true;
+		}
+
 		private void btnWidth_Click(object sender, EventArgs e)
 		{
 			//Sự kiện "thay đổi độ dày nét vẽ"
 			userWidth += 0.5f;
 			if (userWidth > 5)
 				userWidth = 1.0f;
-			btnWidth.Text = userWidth.ToString("0.0");
+			btnWidth.Text = "Width: " + userWidth.ToString("0.0");
 		}
 
 		private void btnColor_Click(object sender, EventArgs e)
