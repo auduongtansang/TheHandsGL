@@ -116,15 +116,15 @@ namespace TheHandsGL
 			switch (userType)
 			{
 				case Shape.shapeType.LINE:
-					//Vẽ đường thẳng bằng thuật toán Bresenham
+					//Tạo đường thẳng bằng thuật toán Bresenham
 					DrawingAlgorithms.Bresenham(newShape, pStart, pEnd);
 					break;
 				case Shape.shapeType.CIRCLE:
-					//Vẽ đường tròn bằng thuật toán Midpoint
+					//Tạo đường tròn bằng thuật toán Midpoint
 					DrawingAlgorithms.Midpoint(newShape, pStart, pEnd);
 					break;
 				case Shape.shapeType.RECTANGLE:
-					//Vẽ hình chữ nhật bằng 4 đường thẳng Bresenham
+					//Tạo hình chữ nhật bằng 4 đường thẳng Bresenham
 					Point p1 = new Point(pEnd.X, pStart.Y);
 					Point p2 = new Point(pStart.X, pEnd.Y);
 					DrawingAlgorithms.Bresenham(newShape, pStart, p1);
@@ -179,15 +179,15 @@ namespace TheHandsGL
 				switch (userType)
 				{
 					case Shape.shapeType.LINE:
-						//Vẽ đường thẳng bằng thuật toán Bresenham
+						//Tạo đường thẳng bằng thuật toán Bresenham
 						DrawingAlgorithms.Bresenham(newShape, pStart, pEnd);
 						break;
 					case Shape.shapeType.CIRCLE:
-						//Vẽ đường tròn bằng thuật toán Midpoint
+						//Tạo đường tròn bằng thuật toán Midpoint
 						DrawingAlgorithms.Midpoint(newShape, pStart, pEnd);
 						break;
 					case Shape.shapeType.RECTANGLE:
-						//Vẽ hình chữ nhật bằng 4 đường thẳng Bresenham
+						//Tạo hình chữ nhật bằng 4 đường thẳng Bresenham
 						Point p1 = new Point(pEnd.X, pStart.Y);
 						Point p2 = new Point(pStart.X, pEnd.Y);
 						DrawingAlgorithms.Bresenham(newShape, pStart, p1);
