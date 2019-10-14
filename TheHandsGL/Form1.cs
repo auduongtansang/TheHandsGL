@@ -111,88 +111,86 @@ namespace TheHandsGL
 					newShape.points.Add(pEnd);
 					break;
 				case Shape.shapeType.CIRCLE:
-                    //Thực ra lấy theo chiều kim đồng hồ nhưng màn hình console 
-                    // -> tính điểm (0,0) ở gốc trên và tăng dần từ trên xuống nên thành ra ngược chiều kim đồng hồ
-                    //Tính bán kính r
-                    double r = (Math.Sqrt(Math.Pow(pStart.X - pEnd.X, 2) + Math.Pow(pStart.Y - pEnd.Y, 2))) / 2;
-
-                    //Tính p0
-                    double decision = 5 / 4 - r;
-
-                    //Điểm đầu (0,r)
-                    int x = 0;
-                    int y = (int)r;
-
-                    //Tính tâm để tịnh tiến hình tròn theo vector (xC,yC)
-                    Point pCenter = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
-
-                    //List chứa điểm ở 1/8 và đối xứng của 1/8 qua y=x
-                    List<Point> oneEighth = new List<Point>();
-                    List<Point> symmetryYX = new List<Point>();
-
-                    oneEighth.Add(new Point(x, y));
-                    symmetryYX.Add(new Point(y, x));
-
-                    newShape.points.Add(new Point(x + pCenter.X, y + pCenter.Y));
-
-                    //Thuật toán midpoint
-                    while (y > x)
-                    {
-                        if (decision < 0)
-                        {
-                            x++;
-                            decision += 2 * x + 1;
-                        }
-                        else
-                        {
-                            y--;
-                            x++;
-                            decision += 2 * (x - y) + 1;
-                        }
-
-                        //Lấy đối xứng điểm tìm được qua trục y = x và tịnh tiến theo vector (xC,yC)
-                        oneEighth.Add(new Point(x, y));
-                        symmetryYX.Add(new Point(y, x));
-                        newShape.points.Add(new Point(x + pCenter.X, y + pCenter.Y));
-                    }
-
-                    Point p;
-                    int i, size = symmetryYX.Count();
-                    for (i = size - 1; i >= 0; i--)
-                    {
-                        p = symmetryYX[i];
-                        oneEighth.Add(p);
-                        newShape.points.Add(new Point(p.X + pCenter.X, p.Y + pCenter.Y));
-                    }
-                    symmetryYX.Clear();
-
-                    //Lấy đối xứng 1/4 qua trục y = 0 và tịnh tiến theo vector (xC,yC)
-                    size = oneEighth.Count();
-                    for (i = size - 1; i >= 0; i--)
-                    {
-                        p = oneEighth[i];
-                        oneEighth.Add(new Point(p.X, -p.Y));
-                        newShape.points.Add(new Point(p.X + pCenter.X, -p.Y + pCenter.Y));
-                    }
-
-                    //Lấy đối xứng 1/2 qua trục x = 0 và tịnh tiến theo vector (xC,yC)
-                    size = oneEighth.Count();
-                    for (i = size - 1; i >= 0; i--)
-                    {
-                        p = oneEighth[i];
-                        newShape.points.Add(new Point(-p.X + pCenter.X, p.Y + pCenter.Y));
-                    }
-                    oneEighth.Clear();
-
-                    break;
+					//Thực ra lấy theo chiều kim đồng hồ nhưng màn hình console
+					// -> tính điểm (0,0) ở gốc trên và tăng dần từ trên xuống nên thành ra ngược chiều kim đồng hồ
+					//Tính bán kính r
+					double r = (Math.Sqrt(Math.Pow(pStart.X - pEnd.X, 2) + Math.Pow(pStart.Y - pEnd.Y, 2))) / 2;
+					
+					//Tính p0
+					double decision = 5 / 4 - r;
+					
+					//Điểm đầu (0, r)
+					int x = 0;
+					int y = (int)r;
+					
+					//Tính tâm để tịnh tiến hình tròn theo vector (xC,yC)
+					Point pCenter = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
+					
+					//List chứa điểm ở 1/8 và đối xứng của 1/8 qua y = x
+					List<Point> oneEighth = new List<Point>();
+					List<Point> symmetryYX = new List<Point>();
+	 
+					oneEighth.Add(new Point(x, y));
+					symmetryYX.Add(new Point(y, x));
+	 
+					newShape.points.Add(new Point(x + pCenter.X, y + pCenter.Y));
+					
+					//Thuật toán midpoint
+					while (y > x)
+					{
+						if (decision < 0)
+						{
+							x++;
+							decision += 2 * x + 1;
+						}
+						else
+						{
+							y--;
+							x++;
+							decision += 2 * (x - y) + 1;
+						}
+						
+						//Lấy đối xứng điểm tìm được qua trục y = x và tịnh tiến theo vector (xC,yC)
+						oneEighth.Add(new Point(x, y));
+						symmetryYX.Add(new Point(y, x));
+						newShape.points.Add(new Point(x + pCenter.X, y + pCenter.Y));
+					}
+	 
+					Point p;
+					int i, size = symmetryYX.Count();
+					for (i = size - 1; i >= 0; i--)
+					{
+						p = symmetryYX[i];
+						oneEighth.Add(p);
+						newShape.points.Add(new Point(p.X + pCenter.X, p.Y + pCenter.Y));
+					}
+					symmetryYX.Clear();
+					
+					//Lấy đối xứng 1/4 qua trục y = 0 và tịnh tiến theo vector (xC,yC)
+					size = oneEighth.Count();
+					for (i = size - 1; i >= 0; i--)
+					{
+						p = oneEighth[i];
+						oneEighth.Add(new Point(p.X, -p.Y));
+						newShape.points.Add(new Point(p.X + pCenter.X, -p.Y + pCenter.Y));
+					}
+					
+					//Lấy đối xứng 1/2 qua trục x = 0 và tịnh tiến theo vector (xC,yC)
+					size = oneEighth.Count();
+					for (i = size - 1; i >= 0; i--)
+					{
+						p = oneEighth[i];
+						newShape.points.Add(new Point(-p.X + pCenter.X, p.Y + pCenter.Y));
+					}
+					oneEighth.Clear();
+					break;
 				case Shape.shapeType.RECTANGLE:
-                    //Lấy lần lượt theo thứ tự theo chiều kim đồng hồ
-                    newShape.points.Add(pStart);
-                    newShape.points.Add(new Point(pEnd.X, pStart.Y));
-                    newShape.points.Add(pEnd);
-                    newShape.points.Add(new Point(pStart.X, pEnd.Y));
-
-                    break;
+					//Lấy lần lượt theo thứ tự theo chiều kim đồng hồ
+					newShape.points.Add(pStart);
+					newShape.points.Add(new Point(pEnd.X, pStart.Y));
+					newShape.points.Add(pEnd);
+					newShape.points.Add(new Point(pStart.X, pEnd.Y));
+					break;
 				case Shape.shapeType.ELLIPSE:
 					//Tính toán các điểm neo và Add vào newShape.points
 					//...
@@ -246,88 +244,86 @@ namespace TheHandsGL
 						newShape.points.Add(pEnd);
 						break;
 					case Shape.shapeType.CIRCLE:
-                        //Thực ra lấy theo chiều kim đồng hồ nhưng màn hình console 
-                        // -> tính điểm (0,0) ở gốc trên và tăng dần từ trên xuống nên thành ra ngược chiều kim đồng hồ
-                        //Tính bán kính r
-                        double r = (Math.Sqrt(Math.Pow(pStart.X - pEnd.X, 2) + Math.Pow(pStart.Y - pEnd.Y, 2))) / 2;
+						//Thực ra lấy theo chiều kim đồng hồ nhưng màn hình console
+						// -> tính điểm (0,0) ở gốc trên và tăng dần từ trên xuống nên thành ra ngược chiều kim đồng hồ
+						//Tính bán kính r
+						double r = (Math.Sqrt(Math.Pow(pStart.X - pEnd.X, 2) + Math.Pow(pStart.Y - pEnd.Y, 2))) / 2;
 
-                        //Tính p0
-                        double decision = 5 / 4 - r;
+						//Tính p0
+						double decision = 5 / 4 - r;
 
-                        //Điểm đầu (0,r)
-                        int x = 0;
-                        int y = (int)r;
+						//Điểm đầu (0,r)
+						int x = 0;
+						int y = (int)r;
 
-                        //Tính tâm để tịnh tiến hình tròn theo vector (xC,yC)
-                        Point pCenter = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
+						//Tính tâm để tịnh tiến hình tròn theo vector (xC,yC)
+						Point pCenter = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
 
-                        //List chứa điểm ở 1/8 và đối xứng của 1/8 qua y=x
-                        List<Point> oneEighth = new List<Point>();
-                        List<Point> symmetryYX = new List<Point>();
+						//List chứa điểm ở 1/8 và đối xứng của 1/8 qua y=x
+						List<Point> oneEighth = new List<Point>();
+						List<Point> symmetryYX = new List<Point>();
 
-                        oneEighth.Add(new Point(x, y));
-                        symmetryYX.Add(new Point(y, x));
+						oneEighth.Add(new Point(x, y));
+						symmetryYX.Add(new Point(y, x));
 
-                        newShape.points.Add(new Point(x + pCenter.X, y + pCenter.Y));
+						newShape.points.Add(new Point(x + pCenter.X, y + pCenter.Y));
 
-                        //Thuật toán midpoint
-                        while (y > x)
-                        {
-                            if (decision < 0)
-                            {
-                                x++;
-                                decision += 2 * x + 1;
-                            }
-                            else
-                            {
-                                y--;
-                                x++;
-                                decision += 2 * (x - y) + 1;
-                            }
+						//Thuật toán midpoint
+						while (y > x)
+						{
+							if (decision < 0)
+							{
+								x++;
+								decision += 2 * x + 1;
+							}
+							else
+							{
+								y--;
+								x++;
+								decision += 2 * (x - y) + 1;
+							}
 
-                            //Lấy đối xứng điểm tìm được qua trục y = x và tịnh tiến theo vector (xC,yC)
-                            oneEighth.Add(new Point(x, y));
-                            symmetryYX.Add(new Point(y, x));
-                            newShape.points.Add(new Point(x + pCenter.X, y + pCenter.Y));
-                        }
+							//Lấy đối xứng điểm tìm được qua trục y = x và tịnh tiến theo vector (xC,yC)
+							oneEighth.Add(new Point(x, y));
+							symmetryYX.Add(new Point(y, x));
+							newShape.points.Add(new Point(x + pCenter.X, y + pCenter.Y));
+						}
 
-                        Point p;
-                        int i, size = symmetryYX.Count();
-                        for (i = size - 1; i >= 0; i--)
-                        {
-                            p = symmetryYX[i];
-                            oneEighth.Add(p);
-                            newShape.points.Add(new Point(p.X + pCenter.X, p.Y + pCenter.Y));
-                        }
-                        symmetryYX.Clear();
+						Point p;
+						int i, size = symmetryYX.Count();
+						for (i = size - 1; i >= 0; i--)
+						{
+							p = symmetryYX[i];
+							oneEighth.Add(p);
+							newShape.points.Add(new Point(p.X + pCenter.X, p.Y + pCenter.Y));
+						}
+						symmetryYX.Clear();
 
-                        //Lấy đối xứng 1/4 qua trục y = 0 và tịnh tiến theo vector (xC,yC)
-                        size = oneEighth.Count();
-                        for (i = size - 1; i >= 0; i--)
-                        {
-                            p = oneEighth[i];
-                            oneEighth.Add(new Point(p.X, -p.Y));
-                            newShape.points.Add(new Point(p.X + pCenter.X, -p.Y + pCenter.Y));
-                        }
+						//Lấy đối xứng 1/4 qua trục y = 0 và tịnh tiến theo vector (xC,yC)
+						size = oneEighth.Count();
+						for (i = size - 1; i >= 0; i--)
+						{
+							p = oneEighth[i];
+							oneEighth.Add(new Point(p.X, -p.Y));
+							newShape.points.Add(new Point(p.X + pCenter.X, -p.Y + pCenter.Y));
+						}
 
-                        //Lấy đối xứng 1/2 qua trục x = 0 và tịnh tiến theo vector (xC,yC)
-                        size = oneEighth.Count();
-                        for (i = size - 1; i >= 0; i--)
-                        {
-                            p = oneEighth[i];
-                            newShape.points.Add(new Point(-p.X + pCenter.X, p.Y + pCenter.Y));
-                        }
-                        oneEighth.Clear();
-
-                        break;
+						//Lấy đối xứng 1/2 qua trục x = 0 và tịnh tiến theo vector (xC,yC)
+						size = oneEighth.Count();
+						for (i = size - 1; i >= 0; i--)
+						{
+							p = oneEighth[i];
+							newShape.points.Add(new Point(-p.X + pCenter.X, p.Y + pCenter.Y));
+						}
+						oneEighth.Clear();
+						break;
 					case Shape.shapeType.RECTANGLE:
-                        //Lấy lần lượt theo thứ tự theo chiều kim đồng hồ
-                        newShape.points.Add(pStart);
-                        newShape.points.Add(new Point(pEnd.X, pStart.Y));
-                        newShape.points.Add(pEnd);
-                        newShape.points.Add(new Point(pStart.X, pEnd.Y));
-
-                        break;
+						//Lấy lần lượt theo thứ tự theo chiều kim đồng hồ
+						newShape.points.Add(pStart);
+						newShape.points.Add(new Point(pEnd.X, pStart.Y));
+						newShape.points.Add(pEnd);
+						newShape.points.Add(new Point(pStart.X, pEnd.Y));
+						break;
 					case Shape.shapeType.ELLIPSE:
 						//Tính toán các điểm neo và Add vào newShape.points
 						//...
