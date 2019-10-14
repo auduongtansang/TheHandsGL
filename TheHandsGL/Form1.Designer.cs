@@ -40,6 +40,8 @@
 			this.btnPentagon = new System.Windows.Forms.Button();
 			this.btnHexagon = new System.Windows.Forms.Button();
 			this.btnClear = new System.Windows.Forms.Button();
+			this.lbUndo = new System.Windows.Forms.Label();
+			this.lbTime = new System.Windows.Forms.Label();
 			((System.ComponentModel.ISupportInitialize)(this.drawBoard)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -169,11 +171,35 @@
 			this.btnClear.UseVisualStyleBackColor = true;
 			this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
 			// 
+			// lbUndo
+			// 
+			this.lbUndo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.lbUndo.AutoSize = true;
+			this.lbUndo.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F);
+			this.lbUndo.Location = new System.Drawing.Point(186, 659);
+			this.lbUndo.Name = "lbUndo";
+			this.lbUndo.Size = new System.Drawing.Size(96, 17);
+			this.lbUndo.TabIndex = 11;
+			this.lbUndo.Text = "Undo: Ctrl + Z";
+			// 
+			// lbTime
+			// 
+			this.lbTime.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.lbTime.AutoSize = true;
+			this.lbTime.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F);
+			this.lbTime.Location = new System.Drawing.Point(447, 659);
+			this.lbTime.Name = "lbTime";
+			this.lbTime.Size = new System.Drawing.Size(43, 17);
+			this.lbTime.TabIndex = 12;
+			this.lbTime.Text = "Time:";
+			// 
 			// mainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(800, 690);
+			this.Controls.Add(this.lbTime);
+			this.Controls.Add(this.lbUndo);
 			this.Controls.Add(this.btnClear);
 			this.Controls.Add(this.btnHexagon);
 			this.Controls.Add(this.btnPentagon);
@@ -190,6 +216,7 @@
 			this.Text = "TheHandsGL";
 			((System.ComponentModel.ISupportInitialize)(this.drawBoard)).EndInit();
 			this.ResumeLayout(false);
+			this.PerformLayout();
 
 		}
 
@@ -207,6 +234,8 @@
 		private System.Windows.Forms.Button btnPentagon;
 		private System.Windows.Forms.Button btnHexagon;
 		private System.Windows.Forms.Button btnClear;
+		private System.Windows.Forms.Label lbUndo;
+		private System.Windows.Forms.Label lbTime;
 	}
 }
 
