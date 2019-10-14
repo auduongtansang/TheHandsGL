@@ -86,6 +86,8 @@ namespace TheHandsGL
 				{
 					for (int i = 0; i < shapes.Count - 1; i++)
 						shapes[i].draw(gl);
+
+					//Đo thời gian vẽ hình cuối cùng
 					Stopwatch watch = Stopwatch.StartNew();
 					shapes[shapes.Count - 1].draw(gl);
 					watch.Stop();
@@ -171,8 +173,8 @@ namespace TheHandsGL
 				gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
 
 				//Vẽ lại tất cả hình
-				foreach (Shape shape in shapes)
-					shape.draw(gl);
+				for (int i = 0; i < shapes.Count; i++)
+					shapes[i].draw(gl);
 
 				//Tạo hình vẽ mới và vẽ hình này ra (không thêm hình này vào danh sách vì chưa nhả chuột)
 				Shape newShape = new Shape(userColor, userWidth, userType);
@@ -336,9 +338,9 @@ namespace TheHandsGL
 			gl.PointSize(width);
 			gl.Begin(OpenGL.GL_POINTS);
 
-            //Liệt kê những điểm neo theo đúng thứ tự
-            foreach (Point point in points)
-				gl.Vertex(point.X, gl.RenderContextProvider.Height - point.Y);
+			//Liệt kê những điểm neo theo đúng thứ tự
+			for (int i = 0; i < points.Count; i++)
+				gl.Vertex(points[i].X, gl.RenderContextProvider.Height - points[i].Y);
 
 			gl.End();
 		}
@@ -426,8 +428,8 @@ namespace TheHandsGL
 					points[i] = new Point(points[i].X, -points[i].Y);
 
 			//Add vào kết quả
-			foreach (Point point in points)
-				newShape.points.Add(new Point(point.X + move.X, point.Y + move.Y));
+			for (int i = 0; i < points.Count; i++)
+				newShape.points.Add(new Point(points[i].X + move.X, points[i].Y + move.Y));
 
 			points.Clear();
 		}

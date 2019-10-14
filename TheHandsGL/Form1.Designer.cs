@@ -81,29 +81,6 @@
 			this.btnLine.UseVisualStyleBackColor = true;
 			this.btnLine.Click += new System.EventHandler(this.btnLine_Click);
 			// 
-			// btnColor
-			// 
-			this.btnColor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.btnColor.Location = new System.Drawing.Point(0, 650);
-			this.btnColor.Name = "btnColor";
-			this.btnColor.Size = new System.Drawing.Size(90, 35);
-			this.btnColor.TabIndex = 2;
-			this.btnColor.Text = "Color";
-			this.btnColor.UseVisualStyleBackColor = true;
-			this.btnColor.Click += new System.EventHandler(this.btnColor_Click);
-			// 
-			// btnWidth
-			// 
-			this.btnWidth.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.btnWidth.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F);
-			this.btnWidth.Location = new System.Drawing.Point(90, 650);
-			this.btnWidth.Name = "btnWidth";
-			this.btnWidth.Size = new System.Drawing.Size(90, 35);
-			this.btnWidth.TabIndex = 3;
-			this.btnWidth.Text = "Width: 2.0";
-			this.btnWidth.UseVisualStyleBackColor = true;
-			this.btnWidth.Click += new System.EventHandler(this.btnWidth_Click);
-			// 
 			// btnCircle
 			// 
 			this.btnCircle.Location = new System.Drawing.Point(90, 5);
@@ -174,6 +151,29 @@
 			this.btnClear.Text = "ClearAll";
 			this.btnClear.UseVisualStyleBackColor = true;
 			this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
+			// 
+			// btnWidth
+			// 
+			this.btnWidth.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.btnWidth.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F);
+			this.btnWidth.Location = new System.Drawing.Point(90, 650);
+			this.btnWidth.Name = "btnWidth";
+			this.btnWidth.Size = new System.Drawing.Size(90, 35);
+			this.btnWidth.TabIndex = 3;
+			this.btnWidth.Text = "Width: 2.0";
+			this.btnWidth.UseVisualStyleBackColor = true;
+			this.btnWidth.Click += new System.EventHandler(this.btnWidth_Click);
+			// 
+			// btnColor
+			// 
+			this.btnColor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.btnColor.Location = new System.Drawing.Point(0, 650);
+			this.btnColor.Name = "btnColor";
+			this.btnColor.Size = new System.Drawing.Size(90, 35);
+			this.btnColor.TabIndex = 2;
+			this.btnColor.Text = "Color";
+			this.btnColor.UseVisualStyleBackColor = true;
+			this.btnColor.Click += new System.EventHandler(this.btnColor_Click);
 			// 
 			// lbUndo
 			// 
