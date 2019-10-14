@@ -107,89 +107,21 @@ namespace TheHandsGL
 			switch (userType)
 			{
 				case Shape.shapeType.LINE:
-					newShape.points.Add(pStart);
-					newShape.points.Add(pEnd);
+					//Vẽ đường thẳng bằng thuật toán Bresenham
+					DrawingAlgorithms.Bresenham(newShape, pStart, pEnd);
 					break;
 				case Shape.shapeType.CIRCLE:
-					//Thực ra lấy theo chiều kim đồng hồ nhưng màn hình console
-					// -> tính điểm (0,0) ở gốc trên và tăng dần từ trên xuống nên thành ra ngược chiều kim đồng hồ
-					//Tính bán kính r
-					double r = (Math.Sqrt(Math.Pow(pStart.X - pEnd.X, 2) + Math.Pow(pStart.Y - pEnd.Y, 2))) / 2;
-					
-					//Tính p0
-					double decision = 5 / 4 - r;
-					
-					//Điểm đầu (0, r)
-					int x = 0;
-					int y = (int)r;
-					
-					//Tính tâm để tịnh tiến hình tròn theo vector (xC,yC)
-					Point pCenter = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
-					
-					//List chứa điểm ở 1/8 và đối xứng của 1/8 qua y = x
-					List<Point> oneEighth = new List<Point>();
-					List<Point> symmetryYX = new List<Point>();
-	 
-					oneEighth.Add(new Point(x, y));
-					symmetryYX.Add(new Point(y, x));
-	 
-					newShape.points.Add(new Point(x + pCenter.X, y + pCenter.Y));
-					
-					//Thuật toán midpoint
-					while (y > x)
-					{
-						if (decision < 0)
-						{
-							x++;
-							decision += 2 * x + 1;
-						}
-						else
-						{
-							y--;
-							x++;
-							decision += 2 * (x - y) + 1;
-						}
-						
-						//Lấy đối xứng điểm tìm được qua trục y = x và tịnh tiến theo vector (xC,yC)
-						oneEighth.Add(new Point(x, y));
-						symmetryYX.Add(new Point(y, x));
-						newShape.points.Add(new Point(x + pCenter.X, y + pCenter.Y));
-					}
-	 
-					Point p;
-					int i, size = symmetryYX.Count();
-					for (i = size - 1; i >= 0; i--)
-					{
-						p = symmetryYX[i];
-						oneEighth.Add(p);
-						newShape.points.Add(new Point(p.X + pCenter.X, p.Y + pCenter.Y));
-					}
-					symmetryYX.Clear();
-					
-					//Lấy đối xứng 1/4 qua trục y = 0 và tịnh tiến theo vector (xC,yC)
-					size = oneEighth.Count();
-					for (i = size - 1; i >= 0; i--)
-					{
-						p = oneEighth[i];
-						oneEighth.Add(new Point(p.X, -p.Y));
-						newShape.points.Add(new Point(p.X + pCenter.X, -p.Y + pCenter.Y));
-					}
-					
-					//Lấy đối xứng 1/2 qua trục x = 0 và tịnh tiến theo vector (xC,yC)
-					size = oneEighth.Count();
-					for (i = size - 1; i >= 0; i--)
-					{
-						p = oneEighth[i];
-						newShape.points.Add(new Point(-p.X + pCenter.X, p.Y + pCenter.Y));
-					}
-					oneEighth.Clear();
+					//Vẽ đường tròn bằng thuật toán Midpoint
+					DrawingAlgorithms.Midpoint(newShape, pStart, pEnd);
 					break;
 				case Shape.shapeType.RECTANGLE:
-					//Lấy lần lượt theo thứ tự theo chiều kim đồng hồ
-					newShape.points.Add(pStart);
-					newShape.points.Add(new Point(pEnd.X, pStart.Y));
-					newShape.points.Add(pEnd);
-					newShape.points.Add(new Point(pStart.X, pEnd.Y));
+					//Vẽ hình chữ nhật bằng 4 đường thẳng Bresenham
+					Point p1 = new Point(pEnd.X, pStart.Y);
+					Point p2 = new Point(pStart.X, pEnd.Y);
+					DrawingAlgorithms.Bresenham(newShape, pStart, p1);
+					DrawingAlgorithms.Bresenham(newShape, p1, pEnd);
+					DrawingAlgorithms.Bresenham(newShape, pEnd, p2);
+					DrawingAlgorithms.Bresenham(newShape, p2, pStart);
 					break;
 				case Shape.shapeType.ELLIPSE:
 					//Tính toán các điểm neo và Add vào newShape.points
@@ -218,12 +150,10 @@ namespace TheHandsGL
 
 		private void drawBoard_MouseMove(object sender, MouseEventArgs e)
 		{
-			//Sự kiện "nhấn giữ chuột và kéo"
+			//Sự kiện "nhấn giữ chuột và kéo", xảy ra liên tục khi người dùng nhấn giữ chuột và kéo đi
 			if (isDrawing)
 			{
 				pEnd = e.Location;
-				
-				//Liên tục vẽ khi người dùng nhấn giữ chuột và kéo đi
 				
 				//Lấy đối tượng OpenGL
 				OpenGL gl = drawBoard.OpenGL;
@@ -240,89 +170,21 @@ namespace TheHandsGL
 				switch (userType)
 				{
 					case Shape.shapeType.LINE:
-						newShape.points.Add(pStart);
-						newShape.points.Add(pEnd);
+						//Vẽ đường thẳng bằng thuật toán Bresenham
+						DrawingAlgorithms.Bresenham(newShape, pStart, pEnd);
 						break;
 					case Shape.shapeType.CIRCLE:
-						//Thực ra lấy theo chiều kim đồng hồ nhưng màn hình console
-						// -> tính điểm (0,0) ở gốc trên và tăng dần từ trên xuống nên thành ra ngược chiều kim đồng hồ
-						//Tính bán kính r
-						double r = (Math.Sqrt(Math.Pow(pStart.X - pEnd.X, 2) + Math.Pow(pStart.Y - pEnd.Y, 2))) / 2;
-
-						//Tính p0
-						double decision = 5 / 4 - r;
-
-						//Điểm đầu (0,r)
-						int x = 0;
-						int y = (int)r;
-
-						//Tính tâm để tịnh tiến hình tròn theo vector (xC,yC)
-						Point pCenter = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
-
-						//List chứa điểm ở 1/8 và đối xứng của 1/8 qua y=x
-						List<Point> oneEighth = new List<Point>();
-						List<Point> symmetryYX = new List<Point>();
-
-						oneEighth.Add(new Point(x, y));
-						symmetryYX.Add(new Point(y, x));
-
-						newShape.points.Add(new Point(x + pCenter.X, y + pCenter.Y));
-
-						//Thuật toán midpoint
-						while (y > x)
-						{
-							if (decision < 0)
-							{
-								x++;
-								decision += 2 * x + 1;
-							}
-							else
-							{
-								y--;
-								x++;
-								decision += 2 * (x - y) + 1;
-							}
-
-							//Lấy đối xứng điểm tìm được qua trục y = x và tịnh tiến theo vector (xC,yC)
-							oneEighth.Add(new Point(x, y));
-							symmetryYX.Add(new Point(y, x));
-							newShape.points.Add(new Point(x + pCenter.X, y + pCenter.Y));
-						}
-
-						Point p;
-						int i, size = symmetryYX.Count();
-						for (i = size - 1; i >= 0; i--)
-						{
-							p = symmetryYX[i];
-							oneEighth.Add(p);
-							newShape.points.Add(new Point(p.X + pCenter.X, p.Y + pCenter.Y));
-						}
-						symmetryYX.Clear();
-
-						//Lấy đối xứng 1/4 qua trục y = 0 và tịnh tiến theo vector (xC,yC)
-						size = oneEighth.Count();
-						for (i = size - 1; i >= 0; i--)
-						{
-							p = oneEighth[i];
-							oneEighth.Add(new Point(p.X, -p.Y));
-							newShape.points.Add(new Point(p.X + pCenter.X, -p.Y + pCenter.Y));
-						}
-
-						//Lấy đối xứng 1/2 qua trục x = 0 và tịnh tiến theo vector (xC,yC)
-						size = oneEighth.Count();
-						for (i = size - 1; i >= 0; i--)
-						{
-							p = oneEighth[i];
-							newShape.points.Add(new Point(-p.X + pCenter.X, p.Y + pCenter.Y));
-						}
-						oneEighth.Clear();
+						//Vẽ đường tròn bằng thuật toán Midpoint
+						DrawingAlgorithms.Midpoint(newShape, pStart, pEnd);
 						break;
 					case Shape.shapeType.RECTANGLE:
-						//Lấy lần lượt theo thứ tự theo chiều kim đồng hồ
-						newShape.points.Add(pStart);
-						newShape.points.Add(new Point(pEnd.X, pStart.Y));
-						newShape.points.Add(pEnd);
-						newShape.points.Add(new Point(pStart.X, pEnd.Y));
+						//Vẽ hình chữ nhật bằng 4 đường thẳng Bresenham
+						Point p1 = new Point(pEnd.X, pStart.Y);
+						Point p2 = new Point(pStart.X, pEnd.Y);
+						DrawingAlgorithms.Bresenham(newShape, pStart, p1);
+						DrawingAlgorithms.Bresenham(newShape, p1, pEnd);
+						DrawingAlgorithms.Bresenham(newShape, pEnd, p2);
+						DrawingAlgorithms.Bresenham(newShape, p2, pStart);
 						break;
 					case Shape.shapeType.ELLIPSE:
 						//Tính toán các điểm neo và Add vào newShape.points
@@ -455,30 +317,180 @@ namespace TheHandsGL
 			//Set màu nét vẽ (đang bị lỗi)
 			gl.Color(color.R / 255, color.G / 255, color.B / 255);
 
-            //Nếu vẽ đường thằng, không cần nối từ điểm cuối ngược lại điểm đầu
-            if (type == shapeType.LINE)
-            {
-                gl.LineWidth(width);
-                gl.Begin(OpenGL.GL_LINES);
-            }
-            //Nếu vẽ đường tròn, phải vẽ từng điểm bằng thuật toán Midpoint
-            else if (type == shapeType.CIRCLE || type == shapeType.ELLIPSE)
-            {
-                gl.PointSize(width);
-                gl.Begin(OpenGL.GL_POINTS);
-            }
-            //Các hình còn lại, chỉ cần nối n điểm với nhau bằng n đường thẳng, tạo thành vòng khép kín
-            else
-            {
-                gl.LineWidth(width);
-                gl.Begin(OpenGL.GL_LINE_LOOP);
-            }
+			gl.PointSize(width);
+			gl.Begin(OpenGL.GL_POINTS);
 
             //Liệt kê những điểm neo theo đúng thứ tự
             foreach (Point point in points)
 				gl.Vertex(point.X, gl.RenderContextProvider.Height - point.Y);
 
 			gl.End();
+		}
+	}
+
+	static class DrawingAlgorithms
+	{
+		//Lớp "DrawingAlgorithms", định nghĩa các thuật toán vẽ hình
+
+		public static void Bresenham(Shape newShape, Point pStart, Point pEnd)
+		{
+			//Vẽ từ điểm có hoành độ nhỏ hơn
+			if (pStart.X > pEnd.X)
+				(pStart, pEnd) = (pEnd, pStart);
+
+			//Tịnh tiến sao cho pStart trùng với (0, 0)
+			//Vector tịnh tiến là move
+			Point move = new Point(pStart.X, pStart.Y);
+			(pStart.X, pStart.Y) = (0, 0);
+			(pEnd.X, pEnd.Y) = (pEnd.X - move.X, pEnd.Y - move.Y);
+
+			//dx == 0, đường thẳng đứng
+			if (pEnd.X == 0)
+			{
+				for (int i = Math.Min(0, pEnd.Y); i <= Math.Max(0, pEnd.Y); i++)
+					newShape.points.Add(new Point(move.X, i + move.Y));
+				return;
+			}
+
+			//Thuật toán Bresenham
+			int dy2 = 2 * pEnd.Y, dx2 = 2 * pEnd.X;
+			float m = (float)dy2 / dx2;
+			bool negativeM = false, largeM = false;
+
+			//Nếu m < 0, lấy đối xứng qua x=0
+			if (m < 0)
+			{
+				pEnd.Y = -pEnd.Y;
+				dy2 = -dy2;
+				m = -m;
+				negativeM = true;
+			}
+
+			//Nếu m > 1, lấy đối xứng qua y=x
+			if (m > 1)
+			{
+				(pEnd.X, pEnd.Y) = (pEnd.Y, pEnd.X);
+				(dy2, dx2) = (dx2, dy2);
+				largeM = true;
+			}
+
+			//Tính p0
+			int p = dy2 - pEnd.X;
+
+			//List chứa các điểm
+			List<Point> points = new List<Point>();
+
+			int x = 0, y = 0;
+			points.Add(new Point(x, y));
+
+			while (x < pEnd.X)
+			{
+				if (p > 0)
+				{
+					x++;
+					y++;
+					p += dy2 - dx2;
+				}
+				else
+				{
+					x++;
+					p += dy2;
+				}
+				points.Add(new Point(x, y));
+			}
+
+			//Đối xứng lại qua y=x
+			if (largeM == true)
+				for (int i = 0; i < points.Count; i++)
+					points[i] = new Point(points[i].Y, points[i].X);
+
+			//Đối xứng lại qua y=0
+			if (negativeM == true)
+				for (int i = 0; i < points.Count; i++)
+					points[i] = new Point(points[i].X, -points[i].Y);
+
+			//Add vào kết quả
+			foreach (Point point in points)
+				newShape.points.Add(new Point(point.X + move.X, point.Y + move.Y));
+
+			points.Clear();
+		}
+
+		public static void Midpoint(Shape newShape, Point pStart, Point pEnd)
+		{
+			//Thực ra lấy theo chiều kim đồng hồ nhưng màn hình console
+			//Tính điểm (0,0) ở góc trên và tăng dần từ trên xuống nên thành ra ngược chiều kim đồng hồ
+
+			//Tính bán kính r
+			double r = Math.Min(Math.Abs(pStart.X - pEnd.X), Math.Abs(pStart.Y - pEnd.Y)) / 2;
+
+			//Tính p0
+			double decision = 5 / 4 - r;
+
+			//Điểm đầu (0, r)
+			int x = 0;
+			int y = (int)r;
+
+			//Tính tâm để tịnh tiến hình tròn theo vector (xC,yC)
+			Point pCenter = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
+
+			//List chứa điểm ở 1/8 và đối xứng của 1/8 qua y=x
+			List<Point> oneEighth = new List<Point>();
+			List<Point> symmetryYX = new List<Point>();
+
+			oneEighth.Add(new Point(x, y));
+			symmetryYX.Add(new Point(y, x));
+
+			newShape.points.Add(new Point(x + pCenter.X, y + pCenter.Y));
+
+			//Thuật toán Midpoint
+			while (y > x)
+			{
+				if (decision < 0)
+				{
+					x++;
+					decision += 2 * x + 1;
+				}
+				else
+				{
+					y--;
+					x++;
+					decision += 2 * (x - y) + 1;
+				}
+
+				//Lấy đối xứng điểm tìm được qua trục y = x và tịnh tiến theo vector (xC,yC)
+				oneEighth.Add(new Point(x, y));
+				symmetryYX.Add(new Point(y, x));
+				newShape.points.Add(new Point(x + pCenter.X, y + pCenter.Y));
+			}
+
+			Point p;
+			int i, size = symmetryYX.Count();
+			for (i = size - 1; i >= 0; i--)
+			{
+				p = symmetryYX[i];
+				oneEighth.Add(p);
+				newShape.points.Add(new Point(p.X + pCenter.X, p.Y + pCenter.Y));
+			}
+			symmetryYX.Clear();
+
+			//Lấy đối xứng 1/4 qua trục y = 0 và tịnh tiến theo vector (xC,yC)
+			size = oneEighth.Count();
+			for (i = size - 1; i >= 0; i--)
+			{
+				p = oneEighth[i];
+				oneEighth.Add(new Point(p.X, -p.Y));
+				newShape.points.Add(new Point(p.X + pCenter.X, -p.Y + pCenter.Y));
+			}
+
+			//Lấy đối xứng 1/2 qua trục x = 0 và tịnh tiến theo vector (xC,yC)
+			size = oneEighth.Count();
+			for (i = size - 1; i >= 0; i--)
+			{
+				p = oneEighth[i];
+				newShape.points.Add(new Point(-p.X + pCenter.X, p.Y + pCenter.Y));
+			}
+			oneEighth.Clear();
 		}
 	}
 }
