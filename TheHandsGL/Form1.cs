@@ -222,9 +222,9 @@ namespace TheHandsGL
 			if (isDrawing)
 			{
 				pEnd = e.Location;
-
-                //Liên tục vẽ khi người dùng nhấn giữ chuột và kéo đi
-
+				
+				//Liên tục vẽ khi người dùng nhấn giữ chuột và kéo đi
+				
 				//Lấy đối tượng OpenGL
 				OpenGL gl = drawBoard.OpenGL;
 
