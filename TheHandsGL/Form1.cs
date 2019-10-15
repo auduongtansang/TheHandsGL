@@ -138,15 +138,64 @@ namespace TheHandsGL
 					//...
 					break;
 				case Shape.shapeType.TRIANGLE:
-					//Tính toán các điểm neo và Add vào newShape.points
-					//...
-					//...
-					break;
+                    //Tính toán các điểm neo và Add vào newShape.points
+                    int Px, Py;
+
+                    if (pStart.Y == pEnd.Y)
+                    {
+                        Px = (int)(pStart.X - Math.Round((pStart.X * 1.0 - pEnd.X) / 2));
+                        Py = (int)Math.Round(Math.Sqrt(3) * Math.Abs(pStart.X - pEnd.X) / 2 + pStart.Y);
+                    }
+                    else
+                        Py = (int)Math.Round((pStart.Y + pEnd.Y + Math.Sqrt(3) * Math.Abs(pStart.X - pEnd.X)) / 2);
+                        Px = (int)Math.Round((pStart.X + pEnd.X + Math.Sqrt(3) * Math.Abs(pStart.Y - pEnd.Y)) / 2);
+
+                    Point P = new Point(Px, Py);
+                    DrawingAlgorithms.Bresenham(newShape, pStart, pEnd);
+                    DrawingAlgorithms.Bresenham(newShape, P, pEnd);
+                    DrawingAlgorithms.Bresenham(newShape, pStart, P);
+                    break;
 				case Shape.shapeType.PENTAGON:
-					//Tính toán các điểm neo và Add vào newShape.points
-					//...
-					//...
-					break;
+                    //Tính toán các điểm neo và Add vào newShape.points
+                    // Ax, Ay là tọa độ của trọng tâm đường tròn ngoại tiếp ngũ giác đều
+                    int Ax, Ay;
+                    if (pStart.Y == pEnd.Y)
+                    {
+                        Ax = (int)(pStart.X - Math.Round((pStart.X * 1.0 - pEnd.X) / 2));
+                        Ay = (int)Math.Round(Math.Sqrt(3) * Math.Abs(pStart.X - pEnd.X) / 2 + pStart.Y);
+                    }
+                    else
+                        Ay = (int)Math.Round((pStart.Y + pEnd.Y + Math.Sqrt(3) * Math.Abs(pStart.X - pEnd.X)) / 2);
+                        Ax = (int)Math.Round((pStart.X + pEnd.X + Math.Sqrt(3) * Math.Abs(pStart.Y - pEnd.Y)) / 2);
+
+                    double R = Math.Sqrt((Ax - pEnd.X) * (Ax - pEnd.X) + (Ay - pEnd.Y) * (Ay - pEnd.Y));
+                    int p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y, p5x, p5y;
+                    p1x = (int)Math.Round(Ax + R * Math.Cos(2 * Math.PI * 1 / 5 + 60));
+                    p1y = (int)Math.Round(Ay + R * Math.Sin(2 * Math.PI * 1 / 5 + 60));
+
+                    p2x = (int)Math.Round(Ax + R * Math.Cos(2 * Math.PI * 2 / 5 + 60));
+                    p2y = (int)Math.Round(Ay + R * Math.Sin(2 * Math.PI * 2 / 5 + 60));
+
+                    p3x = (int)Math.Round(Ax + R * Math.Cos(2 * Math.PI * 3 / 5 + 60));
+                    p3y = (int)Math.Round(Ay + R * Math.Sin(2 * Math.PI * 3 / 5 + 60));
+
+                    p4x = (int)Math.Round(Ax + R * Math.Cos(2 * Math.PI * 4 / 5 + 60));
+                    p4y = (int)Math.Round(Ay + R * Math.Sin(2 * Math.PI * 4 / 5 + 60));
+
+                    p5x = (int)Math.Round(Ax + R * Math.Cos(2 * Math.PI * 5 / 5 + 60));
+                    p5y = (int)Math.Round(Ay + R * Math.Sin(2 * Math.PI * 5 / 5 + 60));
+
+                    Point P1 = new Point(p1x, p1y);
+                    Point P2 = new Point(p2x, p2y);
+                    Point P3 = new Point(p3x, p3y);
+                    Point P4 = new Point(p4x, p4y);
+                    Point P5 = new Point(p5x, p5y);
+                    DrawingAlgorithms.Bresenham(newShape, P1, P2);
+                    DrawingAlgorithms.Bresenham(newShape, P2, P3);
+                    DrawingAlgorithms.Bresenham(newShape, P3, P4);
+                    DrawingAlgorithms.Bresenham(newShape, P4, P5);
+                    DrawingAlgorithms.Bresenham(newShape, P5, P1);
+                    break;
 				case Shape.shapeType.HEXAGON:
 					//Tính toán các điểm neo và Add vào newShape.points
 					//...
@@ -201,15 +250,63 @@ namespace TheHandsGL
 						//...
 						break;
 					case Shape.shapeType.TRIANGLE:
-						//Tính toán các điểm neo và Add vào newShape.points
-						//...
-						//...
-						break;
+                        //Tính toán các điểm neo và Add vào newShape.points
+                        int Px, Py;
+                        
+                        if (pStart.Y == pEnd.Y)
+                        {
+                            Px = (int)(pStart.X - Math.Round((pStart.X * 1.0 - pEnd.X) / 2));
+                            Py = (int)Math.Round(Math.Sqrt(3) * Math.Abs(pStart.X - pEnd.X) / 2 + pStart.Y);
+                        }
+                        else
+                            Py = (int)Math.Round((pStart.Y + pEnd.Y + Math.Sqrt(3) * Math.Abs(pStart.X - pEnd.X)) / 2);
+                            Px = (int)Math.Round((pStart.X + pEnd.X + Math.Sqrt(3) * Math.Abs(pStart.Y - pEnd.Y)) / 2);
+
+                        Point P = new Point(Px, Py);
+                        DrawingAlgorithms.Bresenham(newShape, pStart, pEnd);
+                        DrawingAlgorithms.Bresenham(newShape, P, pEnd);
+                        DrawingAlgorithms.Bresenham(newShape, pStart, P);
+                        break;
 					case Shape.shapeType.PENTAGON:
-						//Tính toán các điểm neo và Add vào newShape.points
-						//...
-						//...
-						break;
+                        //Tính toán các điểm neo và Add vào newShape.points
+                        int Ax, Ay;
+                        if (pStart.Y == pEnd.Y)
+                        {
+                            Ax = (int)(pStart.X - Math.Round((pStart.X * 1.0 - pEnd.X) / 2));
+                            Ay = (int)Math.Round(Math.Sqrt(3) * Math.Abs(pStart.X - pEnd.X) / 2 + pStart.Y);
+                        }
+                        else
+                            Ay = (int)Math.Round((pStart.Y + pEnd.Y + Math.Sqrt(3) * Math.Abs(pStart.X - pEnd.X)) / 2);
+                            Ax = (int)Math.Round((pStart.X + pEnd.X + Math.Sqrt(3) * Math.Abs(pStart.Y - pEnd.Y)) / 2);
+
+                        double R = Math.Sqrt((Ax - pEnd.X)* (Ax - pEnd.X) + (Ay - pEnd.Y)* (Ay - pEnd.Y));
+                        int p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y, p5x, p5y;
+                        p1x = (int)Math.Round(Ax + R * Math.Cos(2 * Math.PI * 1 / 5 + 60));
+                        p1y = (int)Math.Round(Ay + R * Math.Sin(2 * Math.PI * 1 / 5 + 60));
+
+                        p2x = (int)Math.Round(Ax + R * Math.Cos(2 * Math.PI * 2 / 5 + 60));
+                        p2y = (int)Math.Round(Ay + R * Math.Sin(2 * Math.PI * 2 / 5 + 60));
+
+                        p3x = (int)Math.Round(Ax + R * Math.Cos(2 * Math.PI * 3 / 5 + 60));
+                        p3y = (int)Math.Round(Ay + R * Math.Sin(2 * Math.PI * 3 / 5 + 60));
+
+                        p4x = (int)Math.Round(Ax + R * Math.Cos(2 * Math.PI * 4 / 5 + 60));
+                        p4y = (int)Math.Round(Ay + R * Math.Sin(2 * Math.PI * 4 / 5 + 60));
+
+                        p5x = (int)Math.Round(Ax + R * Math.Cos(2 * Math.PI * 5 / 5 + 60));
+                        p5y = (int)Math.Round(Ay + R * Math.Sin(2 * Math.PI * 5 / 5 + 60));
+
+                        Point P1 = new Point(p1x, p1y);
+                        Point P2 = new Point(p2x, p2y);
+                        Point P3 = new Point(p3x, p3y);
+                        Point P4 = new Point(p4x, p4y);
+                        Point P5 = new Point(p5x, p5y);
+                        DrawingAlgorithms.Bresenham(newShape, P1, P2);
+                        DrawingAlgorithms.Bresenham(newShape, P2, P3);
+                        DrawingAlgorithms.Bresenham(newShape, P3, P4);
+                        DrawingAlgorithms.Bresenham(newShape, P4, P5);
+                        DrawingAlgorithms.Bresenham(newShape, P5, P1);
+                        break;
 					case Shape.shapeType.HEXAGON:
 						//Tính toán các điểm neo và Add vào newShape.points
 						//...
