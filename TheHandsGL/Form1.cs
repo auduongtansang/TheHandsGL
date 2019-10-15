@@ -86,6 +86,8 @@ namespace TheHandsGL
 				{
 					for (int i = 0; i < shapes.Count - 1; i++)
 						shapes[i].draw(gl);
+
+					//Đo thời gian vẽ hình cuối cùng
 					Stopwatch watch = Stopwatch.StartNew();
 					shapes[shapes.Count - 1].draw(gl);
 					watch.Stop();
@@ -220,8 +222,8 @@ namespace TheHandsGL
 				gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
 
 				//Vẽ lại tất cả hình
-				foreach (Shape shape in shapes)
-					shape.draw(gl);
+				for (int i = 0; i < shapes.Count; i++)
+					shapes[i].draw(gl);
 
 				//Tạo hình vẽ mới và vẽ hình này ra (không thêm hình này vào danh sách vì chưa nhả chuột)
 				Shape newShape = new Shape(userColor, userWidth, userType);
@@ -433,9 +435,9 @@ namespace TheHandsGL
 			gl.PointSize(width);
 			gl.Begin(OpenGL.GL_POINTS);
 
-            //Liệt kê những điểm neo theo đúng thứ tự
-            foreach (Point point in points)
-				gl.Vertex(point.X, gl.RenderContextProvider.Height - point.Y);
+			//Liệt kê những điểm neo theo đúng thứ tự
+			for (int i = 0; i < points.Count; i++)
+				gl.Vertex(points[i].X, gl.RenderContextProvider.Height - points[i].Y);
 
 			gl.End();
 		}
@@ -523,16 +525,16 @@ namespace TheHandsGL
 					points[i] = new Point(points[i].X, -points[i].Y);
 
 			//Add vào kết quả
-			foreach (Point point in points)
-				newShape.points.Add(new Point(point.X + move.X, point.Y + move.Y));
+			for (int i = 0; i < points.Count; i++)
+				newShape.points.Add(new Point(points[i].X + move.X, points[i].Y + move.Y));
 
 			points.Clear();
 		}
 
 		public static void Midpoint(Shape newShape, Point pStart, Point pEnd)
 		{
-			//Thực ra lấy theo chiều kim đồng hồ nhưng màn hình console
-			//Tính điểm (0,0) ở góc trên và tăng dần từ trên xuống nên thành ra ngược chiều kim đồng hồ
+			//Thực ra lấy theo chiều kim đồng hồ nhưng màn hình console 
+			//Tính điểm (0, 0) ở gốc trên và tăng dần từ trên xuống nên thành ra ngược chiều kim đồng hồ
 
 			//Tính bán kính r
 			double r = Math.Sqrt(Math.Pow(pStart.X - pEnd.X, 2) + Math.Pow(pStart.Y - pEnd.Y, 2)) / 2;
@@ -544,22 +546,20 @@ namespace TheHandsGL
 			int x = 0;
 			int y = (int)r;
 
-			//Tính tâm để tịnh tiến hình tròn theo vector (xC,yC)
+			//Tính tâm để tịnh tiến hình tròn theo vector (xC, yC)
 			Point pCenter = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
 
-			//List chứa điểm ở 1/8 và đối xứng của 1/8 qua y=x
-			List<Point> oneEighth = new List<Point>();
-			List<Point> symmetryYX = new List<Point>();
+			//List chứa điểm ở 1/8 và đối xứng của 1/8 qua y = x
+			List<Point> partsOfCircle = new List<Point>();
 
-			oneEighth.Add(new Point(x, y));
-			symmetryYX.Add(new Point(y, x));
+			//Add điểm đầu vào 
+			partsOfCircle.Add(new Point(x, y));
 
 			newShape.points.Add(new Point(x + pCenter.X, y + pCenter.Y));
 
-			//Thuật toán Midpoint
-
 			int x2 = x * 2, y2 = y * 2;
 
+			//Thuật toán Midpoint
 			while (y > x)
 			{
 				if (decision < 0)
@@ -577,39 +577,38 @@ namespace TheHandsGL
 					y2 -= 2;
 				}
 
-				//Lấy đối xứng điểm tìm được qua trục y = x và tịnh tiến theo vector (xC,yC)
-				oneEighth.Add(new Point(x, y));
-				symmetryYX.Add(new Point(y, x));
+				//Add mỗi điểm tìm được đã tịnh tiến theo vector (xC, yC) vào
+				partsOfCircle.Add(new Point(x, y));
 				newShape.points.Add(new Point(x + pCenter.X, y + pCenter.Y));
 			}
 
+			//Lấy đối xứng qua trục y = x và tịnh tiến theo vector (xC, yC)
 			Point p;
-			int i, size = symmetryYX.Count();
+			int i, size = partsOfCircle.Count();
 			for (i = size - 1; i >= 0; i--)
 			{
-				p = symmetryYX[i];
-				oneEighth.Add(p);
-				newShape.points.Add(new Point(p.X + pCenter.X, p.Y + pCenter.Y));
+				p = partsOfCircle[i];
+				partsOfCircle.Add(new Point(p.Y, p.X));
+				newShape.points.Add(new Point(p.Y + pCenter.X, p.X + pCenter.Y));
 			}
-			symmetryYX.Clear();
 
-			//Lấy đối xứng 1/4 qua trục y = 0 và tịnh tiến theo vector (xC,yC)
-			size = oneEighth.Count();
+			//Lấy đối xứng 1/4 qua trục y = 0 và tịnh tiến theo vector (xC, yC)
+			size = partsOfCircle.Count();
 			for (i = size - 1; i >= 0; i--)
 			{
-				p = oneEighth[i];
-				oneEighth.Add(new Point(p.X, -p.Y));
+				p = partsOfCircle[i];
+				partsOfCircle.Add(new Point(p.X, -p.Y));
 				newShape.points.Add(new Point(p.X + pCenter.X, -p.Y + pCenter.Y));
 			}
 
-			//Lấy đối xứng 1/2 qua trục x = 0 và tịnh tiến theo vector (xC,yC)
-			size = oneEighth.Count();
+			//Lấy đối xứng 1/2 qua trục x = 0 và tịnh tiến theo vector (xC, yC)
+			size = partsOfCircle.Count();
 			for (i = size - 1; i >= 0; i--)
 			{
-				p = oneEighth[i];
+				p = partsOfCircle[i];
 				newShape.points.Add(new Point(-p.X + pCenter.X, p.Y + pCenter.Y));
 			}
-			oneEighth.Clear();
+			partsOfCircle.Clear();
 		}
 	}
 }
