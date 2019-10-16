@@ -54,6 +54,7 @@
 			this.drawBoard.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.drawBoard.Cursor = System.Windows.Forms.Cursors.Cross;
 			this.drawBoard.DrawFPS = false;
 			this.drawBoard.Location = new System.Drawing.Point(0, 45);
 			this.drawBoard.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
@@ -84,6 +85,29 @@
 			this.btnLine.Text = "Line";
 			this.btnLine.UseVisualStyleBackColor = true;
 			this.btnLine.Click += new System.EventHandler(this.btnLine_Click);
+			// 
+			// btnColor
+			// 
+			this.btnColor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.btnColor.Location = new System.Drawing.Point(0, 650);
+			this.btnColor.Name = "btnColor";
+			this.btnColor.Size = new System.Drawing.Size(90, 35);
+			this.btnColor.TabIndex = 2;
+			this.btnColor.Text = "Color";
+			this.btnColor.UseVisualStyleBackColor = true;
+			this.btnColor.Click += new System.EventHandler(this.btnColor_Click);
+			// 
+			// btnWidth
+			// 
+			this.btnWidth.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.btnWidth.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F);
+			this.btnWidth.Location = new System.Drawing.Point(90, 650);
+			this.btnWidth.Name = "btnWidth";
+			this.btnWidth.Size = new System.Drawing.Size(90, 35);
+			this.btnWidth.TabIndex = 3;
+			this.btnWidth.Text = "Width: 1.0";
+			this.btnWidth.UseVisualStyleBackColor = true;
+			this.btnWidth.Click += new System.EventHandler(this.btnWidth_Click);
 			// 
 			// btnCircle
 			// 
@@ -155,29 +179,6 @@
 			this.btnClear.Text = "ClearAll";
 			this.btnClear.UseVisualStyleBackColor = true;
 			this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
-			// 
-			// btnWidth
-			// 
-			this.btnWidth.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.btnWidth.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F);
-			this.btnWidth.Location = new System.Drawing.Point(90, 650);
-			this.btnWidth.Name = "btnWidth";
-			this.btnWidth.Size = new System.Drawing.Size(90, 35);
-			this.btnWidth.TabIndex = 3;
-			this.btnWidth.Text = "Width: 1.0";
-			this.btnWidth.UseVisualStyleBackColor = true;
-			this.btnWidth.Click += new System.EventHandler(this.btnWidth_Click);
-			// 
-			// btnColor
-			// 
-			this.btnColor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.btnColor.Location = new System.Drawing.Point(0, 650);
-			this.btnColor.Name = "btnColor";
-			this.btnColor.Size = new System.Drawing.Size(90, 35);
-			this.btnColor.TabIndex = 2;
-			this.btnColor.Text = "Color";
-			this.btnColor.UseVisualStyleBackColor = true;
-			this.btnColor.Click += new System.EventHandler(this.btnColor_Click);
 			// 
 			// lbUndo
 			// 
