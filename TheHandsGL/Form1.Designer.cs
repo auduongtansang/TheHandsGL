@@ -160,7 +160,7 @@
 			this.btnWidth.Name = "btnWidth";
 			this.btnWidth.Size = new System.Drawing.Size(90, 35);
 			this.btnWidth.TabIndex = 3;
-			this.btnWidth.Text = "Width: 2.0";
+			this.btnWidth.Text = "Width: 1.0";
 			this.btnWidth.UseVisualStyleBackColor = true;
 			this.btnWidth.Click += new System.EventHandler(this.btnWidth_Click);
 			// 
