@@ -13,7 +13,7 @@ namespace TheHandsGL
 		//Biến đánh dấu rằng người dùng đang vẽ hình (quá trình vẽ bắt đầu khi nhấn giữ chuột và kéo đi, kết thúc khi nhả chuột)
 		bool isDrawing = false;
 		//Màu người dùng đang chọn
-		Color userColor = Color.Black;
+		Color userColor = Color.White;
 		//Độ dày nét vẽ người dùng đang chọn
 		float userWidth = 1.0f;
 		//Loại hình vẽ người dùng đang chọn
@@ -37,8 +37,8 @@ namespace TheHandsGL
 			//Lấy đối tượng OpenGL
 			OpenGL gl = drawBoard.OpenGL;
 
-			//Set màu nền (trắng)
-			gl.ClearColor(1, 1, 1, 1);
+			//Set màu nền (đen)
+			gl.ClearColor(0, 0, 0, 1);
 
 			//Xóa toàn bộ drawBoard
 			gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
@@ -296,8 +296,8 @@ namespace TheHandsGL
 
 		public void draw(OpenGL gl)
 		{
-			//Set màu nét vẽ (đang bị lỗi)
-			gl.Color(color.R / 255, color.G / 255, color.B / 255);
+			//Set màu nét vẽ
+			gl.Color((byte)color.R, (byte)color.G, (byte)color.B, color.A);
 
 			gl.PointSize(width);
 			gl.Begin(OpenGL.GL_POINTS);

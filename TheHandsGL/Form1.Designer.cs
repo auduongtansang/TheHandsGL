@@ -71,6 +71,10 @@
 			this.drawBoard.MouseMove += new System.Windows.Forms.MouseEventHandler(this.drawBoard_MouseMove);
 			this.drawBoard.MouseUp += new System.Windows.Forms.MouseEventHandler(this.drawBoard_MouseUp);
 			// 
+			// colorDialog
+			// 
+			this.colorDialog.Color = System.Drawing.Color.White;
+			// 
 			// btnLine
 			// 
 			this.btnLine.Location = new System.Drawing.Point(0, 5);
