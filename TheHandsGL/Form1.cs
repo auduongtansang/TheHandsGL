@@ -554,7 +554,97 @@ namespace TheHandsGL
 
 		public static void Ellipse(Shape newShape, Point pStart, Point pEnd)
 		{
-			//Code ở đây
+			//Tính tâm ellipse
+           		Point pCenter = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
+
+           		//Tính đường kính Rx
+           		double Rx = Math.Sqrt(Math.Pow(pStart.X - pEnd.X, 2) + Math.Pow(pStart.Y - pStart.Y, 2)) / 2;
+
+            		//Tính đường kính Ry
+            		double Ry = Math.Sqrt(Math.Pow(pStart.X - pStart.X, 2) + Math.Pow(pStart.Y - pEnd.Y, 2)) / 2;
+
+            		//Điểm đầu (0, Ry);
+			int x = 0;
+			int y = (int)Ry;
+
+			//List chứa điểm ở 1/4
+			List<Point> oneFourth = new List<Point>();
+
+			oneFourth.Add(new Point(x, y));
+
+			newShape.points.Add(new Point(x + pCenter.X, y + pCenter.Y));
+
+			//Các thông số cơ bản
+			double Ry2x = 2 * Ry*Ry * x;
+			double Rx2y = 2 * Rx*Rx * y;
+			double decision1 = Ry*Ry - Rx*Rx * Ry + (Rx*Rx)/4; 
+
+			while (Ry2x < Rx2y)
+			{
+				if (decision1 < 0)
+				{
+				    x++;
+				    Ry2x += 2 * Ry*Ry;
+				    decision1 += Ry2x + Ry*Ry;
+				}
+				else
+				{
+				    x++;
+				    y--;
+				    Ry2x += 2 * Ry*Ry;
+				    Rx2y -= 2 * Rx*Rx;
+				    decision1 += Ry2x - Rx2y + Ry*Ry;
+				}
+
+				// Nhập điểm vào và tịnh tiến
+				oneFourth.Add(new Point(x, y));
+				newShape.points.Add(new Point(x + pCenter.X, y + pCenter.Y));
+			}
+
+			// x_last, y_last
+			double Rx2y_last = 2 * Rx * Rx * y;
+			double Ry2x_last = 2 * Ry * Ry * x;
+			double decision2 = Ry * Ry * Math.Pow((x + (1 / 2)), 2) + Rx * Rx * Math.Pow((y - 1), 2) - Rx * Rx * Ry * Ry;
+
+			while (y >= 0)
+			{
+				if (decision2 > 0)
+				{
+				    y--;
+				    Rx2y_last -= 2 * Rx * Rx;
+				    decision2 = decision2 - Rx2y_last + Rx * Rx;
+				}
+				else
+				{
+				    x++;
+				    y--;
+				    Ry2x_last += 2 * Ry * Ry;
+				    Rx2y_last -= 2 * Rx * Rx;
+				    decision2 += Ry2x_last - Rx2y_last + Rx * Rx;
+				}
+
+				// Nhập điểm vào và tịnh tiến
+				oneFourth.Add(new Point(x, y));
+				newShape.points.Add(new Point(x + pCenter.X, y + pCenter.Y));
+			}
+
+			// Chiếu đường cong 1/4 qua trục x = 0
+			int size = oneFourth.Count();
+			for (int i = size - 1; i >= 0; i--)
+			{
+				Point p = oneFourth[i];
+				oneFourth.Add(new Point(p.X, -p.Y));
+				newShape.points.Add(new Point(p.X + pCenter.X, -p.Y + pCenter.Y));
+			}
+
+			// Chiếu đường cong 1/2 qua trục y = 0
+			size = oneFourth.Count();
+			for (int i = size - 1; i >= 0; i--)
+			{
+				Point p = oneFourth[i];
+				oneFourth.Add(new Point(-p.X, p.Y));
+				newShape.points.Add(new Point(-p.X + pCenter.X, p.Y + pCenter.Y));
+			}
 		}
 
 		public static void Hexagon(Shape newShape, Point pStart, Point pEnd)
