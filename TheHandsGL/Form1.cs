@@ -67,9 +67,9 @@ namespace TheHandsGL
 		{
 			//Sự kiện "vẽ", xảy ra liên tục và lặp vô hạn lần
 			
-			if (isDrawing == false && isShapesChanged == true)
+			if (isShapesChanged == true)
 			{
-				//Chỉ vẽ khi người dùng đã nhả chuột, và danh sách hình vẽ đã bị thay đổi
+				//Chỉ vẽ khi danh sách hình vẽ bị thay đổi
 
 				//Lấy đối tượng OpenGL
 				OpenGL gl = drawBoard.OpenGL;
@@ -98,45 +98,16 @@ namespace TheHandsGL
 		private void drawBoard_MouseDown(object sender, MouseEventArgs e)
 		{
 			//Sự kiện "nhấn giữ chuột", bắt đầu quá trình vẽ
-			pStart = pEnd = e.Location;
 			isDrawing = true;
 			tbSelf.Text = "";
+			shapes.Add(new Shape(userColor, userWidth, userType));
+			pStart = pEnd = e.Location;
 		}
 
 		private void drawBoard_MouseUp(object sender, MouseEventArgs e)
 		{
 			//Sự kiện "nhả chuột", kết thúc quá trình vẽ
-			pEnd = e.Location;
 			isDrawing = false;
-
-			//Tạo hình vẽ mới và thêm vào danh sách, đánh dấu danh sách đã bị thay đổi để vẽ lại
-			Shape newShape = new Shape(userColor, userWidth, userType);
-			switch (userType)
-			{
-				case Shape.shapeType.LINE:
-					DrawingAlgorithms.Line(newShape, pStart, pEnd);
-					break;
-				case Shape.shapeType.CIRCLE:
-					DrawingAlgorithms.Circle(newShape, pStart, pEnd);
-					break;
-				case Shape.shapeType.RECTANGLE:
-					DrawingAlgorithms.Rectangle(newShape, pStart, pEnd);
-					break;
-				case Shape.shapeType.ELLIPSE:
-					DrawingAlgorithms.Ellipse(newShape, pStart, pEnd);
-					break;
-				case Shape.shapeType.TRIANGLE:
-					DrawingAlgorithms.Triangle(newShape, pStart, pEnd);
-					break;
-				case Shape.shapeType.PENTAGON:
-					DrawingAlgorithms.Pengtagon(newShape, pStart, pEnd);
-					break;
-				case Shape.shapeType.HEXAGON:
-					DrawingAlgorithms.Hexagon(newShape, pStart, pEnd);
-					break;
-			}
-			shapes.Add(newShape);
-			isShapesChanged = true;
 		}
 
 		private void drawBoard_MouseMove(object sender, MouseEventArgs e)
@@ -145,45 +116,34 @@ namespace TheHandsGL
 			if (isDrawing)
 			{
 				pEnd = e.Location;
-				
-				//Lấy đối tượng OpenGL
-				OpenGL gl = drawBoard.OpenGL;
 
-				//Xóa toàn bộ drawBoard
-				gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
-
-				//Vẽ lại tất cả hình
-				for (int i = 0; i < shapes.Count; i++)
-					shapes[i].draw(gl);
-
-				//Tạo hình vẽ mới và vẽ hình này ra (không thêm hình này vào danh sách vì chưa nhả chuột)
-				Shape newShape = new Shape(userColor, userWidth, userType);
+				//Xóa tập điểm của hình vẽ ngay trước đó, và tạo lại tập điểm mới
+				shapes.Last().points.Clear();
 				switch (userType)
 				{
 					case Shape.shapeType.LINE:
-						DrawingAlgorithms.Line(newShape, pStart, pEnd);
+						DrawingAlgorithms.Line(shapes.Last(), pStart, pEnd);
 						break;
 					case Shape.shapeType.CIRCLE:
-						DrawingAlgorithms.Circle(newShape, pStart, pEnd);
+						DrawingAlgorithms.Circle(shapes.Last(), pStart, pEnd);
 						break;
 					case Shape.shapeType.RECTANGLE:
-						DrawingAlgorithms.Rectangle(newShape, pStart, pEnd);
+						DrawingAlgorithms.Rectangle(shapes.Last(), pStart, pEnd);
 						break;
 					case Shape.shapeType.ELLIPSE:
-						DrawingAlgorithms.Ellipse(newShape, pStart, pEnd);
+						DrawingAlgorithms.Ellipse(shapes.Last(), pStart, pEnd);
 						break;
 					case Shape.shapeType.TRIANGLE:
-						DrawingAlgorithms.Triangle(newShape, pStart, pEnd);
+						DrawingAlgorithms.Triangle(shapes.Last(), pStart, pEnd);
 						break;
 					case Shape.shapeType.PENTAGON:
-						DrawingAlgorithms.Pengtagon(newShape, pStart, pEnd);
+						DrawingAlgorithms.Pengtagon(shapes.Last(), pStart, pEnd);
 						break;
 					case Shape.shapeType.HEXAGON:
-						DrawingAlgorithms.Hexagon(newShape, pStart, pEnd);
+						DrawingAlgorithms.Hexagon(shapes.Last(), pStart, pEnd);
 						break;
 				}
-				newShape.draw(gl);
-				gl.Flush();
+				isShapesChanged = true;
 			}
 		}
 
