@@ -46,6 +46,7 @@
 			this.tbSelf = new System.Windows.Forms.TextBox();
 			this.lbBuildIn = new System.Windows.Forms.Label();
 			this.tbBuildIn = new System.Windows.Forms.TextBox();
+			this.btnPolygon = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.drawBoard)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -62,7 +63,7 @@
 			this.drawBoard.OpenGLVersion = SharpGL.Version.OpenGLVersion.OpenGL2_1;
 			this.drawBoard.RenderContextType = SharpGL.RenderContextType.DIBSection;
 			this.drawBoard.RenderTrigger = SharpGL.RenderTrigger.TimerBased;
-			this.drawBoard.Size = new System.Drawing.Size(800, 600);
+			this.drawBoard.Size = new System.Drawing.Size(890, 600);
 			this.drawBoard.TabIndex = 0;
 			this.drawBoard.OpenGLInitialized += new System.EventHandler(this.drawBoard_OpenGLInitialized);
 			this.drawBoard.OpenGLDraw += new SharpGL.RenderEventHandler(this.drawBoard_OpenGLDraw);
@@ -85,29 +86,6 @@
 			this.btnLine.Text = "Line";
 			this.btnLine.UseVisualStyleBackColor = true;
 			this.btnLine.Click += new System.EventHandler(this.btnLine_Click);
-			// 
-			// btnColor
-			// 
-			this.btnColor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.btnColor.Location = new System.Drawing.Point(0, 650);
-			this.btnColor.Name = "btnColor";
-			this.btnColor.Size = new System.Drawing.Size(90, 35);
-			this.btnColor.TabIndex = 2;
-			this.btnColor.Text = "Color";
-			this.btnColor.UseVisualStyleBackColor = true;
-			this.btnColor.Click += new System.EventHandler(this.btnColor_Click);
-			// 
-			// btnWidth
-			// 
-			this.btnWidth.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.btnWidth.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F);
-			this.btnWidth.Location = new System.Drawing.Point(90, 650);
-			this.btnWidth.Name = "btnWidth";
-			this.btnWidth.Size = new System.Drawing.Size(90, 35);
-			this.btnWidth.TabIndex = 3;
-			this.btnWidth.Text = "Width: 1.0";
-			this.btnWidth.UseVisualStyleBackColor = true;
-			this.btnWidth.Click += new System.EventHandler(this.btnWidth_Click);
 			// 
 			// btnCircle
 			// 
@@ -169,16 +147,49 @@
 			this.btnHexagon.UseVisualStyleBackColor = true;
 			this.btnHexagon.Click += new System.EventHandler(this.btnHexagon_Click);
 			// 
+			// btnPolygon
+			// 
+			this.btnPolygon.Location = new System.Drawing.Point(630, 5);
+			this.btnPolygon.Name = "btnPolygon";
+			this.btnPolygon.Size = new System.Drawing.Size(90, 35);
+			this.btnPolygon.TabIndex = 17;
+			this.btnPolygon.Text = "Polygon";
+			this.btnPolygon.UseVisualStyleBackColor = true;
+			this.btnPolygon.Click += new System.EventHandler(this.btnPolygon_Click);
+			// 
 			// btnClear
 			// 
 			this.btnClear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnClear.Location = new System.Drawing.Point(710, 5);
+			this.btnClear.Location = new System.Drawing.Point(800, 5);
 			this.btnClear.Name = "btnClear";
 			this.btnClear.Size = new System.Drawing.Size(90, 35);
 			this.btnClear.TabIndex = 10;
 			this.btnClear.Text = "ClearAll";
 			this.btnClear.UseVisualStyleBackColor = true;
 			this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
+			// 
+			// btnWidth
+			// 
+			this.btnWidth.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.btnWidth.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F);
+			this.btnWidth.Location = new System.Drawing.Point(90, 650);
+			this.btnWidth.Name = "btnWidth";
+			this.btnWidth.Size = new System.Drawing.Size(90, 35);
+			this.btnWidth.TabIndex = 3;
+			this.btnWidth.Text = "Width: 1.0";
+			this.btnWidth.UseVisualStyleBackColor = true;
+			this.btnWidth.Click += new System.EventHandler(this.btnWidth_Click);
+			// 
+			// btnColor
+			// 
+			this.btnColor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.btnColor.Location = new System.Drawing.Point(0, 650);
+			this.btnColor.Name = "btnColor";
+			this.btnColor.Size = new System.Drawing.Size(90, 35);
+			this.btnColor.TabIndex = 2;
+			this.btnColor.Text = "Color";
+			this.btnColor.UseVisualStyleBackColor = true;
+			this.btnColor.Click += new System.EventHandler(this.btnColor_Click);
 			// 
 			// lbUndo
 			// 
@@ -244,7 +255,8 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(800, 690);
+			this.ClientSize = new System.Drawing.Size(890, 690);
+			this.Controls.Add(this.btnPolygon);
 			this.Controls.Add(this.tbBuildIn);
 			this.Controls.Add(this.lbBuildIn);
 			this.Controls.Add(this.tbSelf);
@@ -291,6 +303,7 @@
 		private System.Windows.Forms.TextBox tbSelf;
 		private System.Windows.Forms.Label lbBuildIn;
 		private System.Windows.Forms.TextBox tbBuildIn;
+		private System.Windows.Forms.Button btnPolygon;
 	}
 }
 
