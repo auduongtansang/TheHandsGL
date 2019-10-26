@@ -26,6 +26,10 @@ namespace TheHandsGL
 		List<Shape> shapes = new List<Shape>();
 		//Biến đánh dấu rằng tập hình vẽ đã bị thay đổi, cần phải vẽ lại
 		bool isShapesChanged = true;
+		//Sai số pixel dùng trong chức năng chọn hình vẽ
+		const float epsilon = 10.0f;
+		//Số thứ tự của hình đang được chọn, -1 nghĩa là không chọn gì
+		int choosing = -1;
 
 		public mainForm()
 		{
@@ -69,12 +73,12 @@ namespace TheHandsGL
 		{
 			//Sự kiện "vẽ", xảy ra liên tục và lặp vô hạn lần
 
-			//Tuy nhiên, chỉ cần vẽ khi tập hình vẽ bị thay đổi
-			if (isShapesChanged == true)
-			{
-				//Lấy đối tượng OpenGL
-				OpenGL gl = drawBoard.OpenGL;
+			//Lấy đối tượng OpenGL
+			OpenGL gl = drawBoard.OpenGL;
 
+			//Tuy nhiên, chỉ cần vẽ khi biến cờ isShapesChanged được bật lên
+			if (isShapesChanged)
+			{
 				//Xóa toàn bộ drawBoard
 				gl.Clear(OpenGL.GL_COLOR_BUFFER_BIT | OpenGL.GL_DEPTH_BUFFER_BIT);
 
@@ -94,11 +98,50 @@ namespace TheHandsGL
 				gl.Flush();
 				isShapesChanged = false;
 			}
+
+			//Vẽ điểm điều khiển của hình đang được chọn
+			if (choosing >= 0)
+			{
+				gl.PointSize(10.0f);
+				gl.Color(230.0, 230.0, 0);
+
+				gl.Begin(OpenGL.GL_POINTS);
+				for (int i = 0; i < shapes[choosing].controlPoints.Count; i++)
+					gl.Vertex(shapes[choosing].controlPoints[i].X, gl.RenderContextProvider.Height - shapes[choosing].controlPoints[i].Y);
+				gl.End();
+
+				gl.Flush();
+			}
 		}
 
 		private void drawBoard_MouseDown(object sender, MouseEventArgs e)
 		{
-			//Sự kiện "nhấn chuột", bắt đầu quá trình vẽ
+			//Sự kiện "nhấn chuột", bắt đầu quá trình vẽ hoặc chọn một hình đã vẽ
+			choosing = -1;
+
+			if (userType == Shape.shapeType.NONE)
+			{
+				//Duyệt tất cả điểm vẽ để tìm điểm gần tọa độ chuột nhất
+				double minDistance = 999999999999999999999999.0;
+				for (int i = 0; i < shapes.Count; i++)
+					for (int j = 0; j < shapes[i].rasterPoints.Count; j++)
+					{
+						int dx = shapes[i].rasterPoints[j].X - e.Location.X;
+						int dy = shapes[i].rasterPoints[j].Y - e.Location.Y;
+						double distance = Math.Sqrt(dx * dx + dy * dy);
+						if (distance < minDistance)
+						{
+							minDistance = distance;
+							choosing = i;
+						}
+					}
+				if (minDistance > epsilon)
+					choosing = -1;
+
+				isShapesChanged = true;
+				return;
+			}
+
 			if (e.Button == MouseButtons.Left)
 			{
 				isDrawing = true;
@@ -185,56 +228,65 @@ namespace TheHandsGL
 		{
 			//Sự kiện "chọn vẽ đường thẳng"
 			userType = Shape.shapeType.LINE;
+			lbMode.Text = "Mode: Line";
 		}
 
 		private void btnCircle_Click(object sender, EventArgs e)
 		{
 			//Sự kiện "chọn vẽ đường tròn"
 			userType = Shape.shapeType.CIRCLE;
+			lbMode.Text = "Mode: Circle";
 		}
 
 		private void btnRectangle_Click(object sender, EventArgs e)
 		{
 			//Sự kiện "chọn vẽ hình chữ nhật"
 			userType = Shape.shapeType.RECTANGLE;
+			lbMode.Text = "Mode: Rectangle";
 		}
 
 		private void btnEllipse_Click(object sender, EventArgs e)
 		{
 			//Sự kiện "chọn vẽ đường ellipse"
 			userType = Shape.shapeType.ELLIPSE;
+			lbMode.Text = "Mode: Ellipse";
 		}
 
 		private void btnTriangle_Click(object sender, EventArgs e)
 		{
 			//Sự kiện "chọn vẽ hình tam giác đều"
 			userType = Shape.shapeType.TRIANGLE;
+			lbMode.Text = "Mode: Triangle";
 		}
 
 		private void btnPentagon_Click(object sender, EventArgs e)
 		{
 			//Sự kiện "chọn vẽ hình ngũ giác đều"
 			userType = Shape.shapeType.PENTAGON;
+			lbMode.Text = "Mode: Pentagon";
 		}
 
 		private void btnHexagon_Click(object sender, EventArgs e)
 		{
 			//Sự kiện "chọn vẽ hình lục giác đều"
 			userType = Shape.shapeType.HEXAGON;
+			lbMode.Text = "Mode: Hexagon";
 		}
 
 		private void btnPolygon_Click(object sender, EventArgs e)
 		{
 			//Sự kiện "chọn vẽ hình đa giác"
 			userType = Shape.shapeType.POLYGON;
+			lbMode.Text = "Mode: Polygon";
 		}
 
 		private void btnClear_Click(object sender, EventArgs e)
 		{
 			//Sự kiện "xóa toàn bộ"
+			choosing = -1;
 			shapes.Clear();
-			isDrawing = isPolygonDrawing = false;
 			isShapesChanged = true;
+			isDrawing = isPolygonDrawing = false;
 		}
 
 		private void btnWidth_Click(object sender, EventArgs e)
@@ -258,8 +310,26 @@ namespace TheHandsGL
 			//Sự kiện "bấm bàn phím"
 			if (e.KeyCode == Keys.Z && e.Control && shapes.Count > 0)
 			{
+				//Ctrl + Z
+				choosing = -1;
 				shapes.RemoveAt(shapes.Count - 1);
 				isShapesChanged = true;
+			}
+			else if (e.KeyCode == Keys.Escape)
+			{
+				//Esc
+				if (isDrawing)
+				{
+					isDrawing = isPolygonDrawing = false;
+					shapes.RemoveAt(shapes.Count - 1);
+					isShapesChanged = true;
+				}
+				else
+				{
+					choosing = -1;
+					userType = Shape.shapeType.NONE;
+					lbMode.Text = "Mode: Picking";
+				}
 			}
 		}
 	}
