@@ -286,7 +286,7 @@
 			this.Controls.Add(this.btnColor);
 			this.Controls.Add(this.btnLine);
 			this.Controls.Add(this.drawBoard);
-			this.MinimumSize = new System.Drawing.Size(800, 690);
+			this.MinimumSize = new System.Drawing.Size(890, 690);
 			this.Name = "mainForm";
 			this.Text = "TheHandsGL";
 			((System.ComponentModel.ISupportInitialize)(this.drawBoard)).EndInit();
