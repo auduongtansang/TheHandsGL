@@ -102,7 +102,7 @@ namespace TheHandsGL
 			//Vẽ điểm điều khiển của hình đang được chọn
 			if (choosing >= 0)
 			{
-				gl.PointSize(10.0f);
+				gl.PointSize(5.0f);
 				gl.Color(230.0, 230.0, 0);
 
 				gl.Begin(OpenGL.GL_POINTS);
@@ -135,6 +135,7 @@ namespace TheHandsGL
 							choosing = i;
 						}
 					}
+                //Nếu khoảng cách nhỏ nhất vẫn lớn hơn epsilon => không chọn trúng hình nào hết
 				if (minDistance > epsilon)
 					choosing = -1;
 
