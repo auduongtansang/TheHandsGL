@@ -125,6 +125,7 @@ namespace TheHandsGL
 		private void drawBoard_MouseDown(object sender, MouseEventArgs e)
 		{
 			//Sự kiện "nhấn chuột"
+			pStart = pEnd = e.Location;
 
 			//Nhấn chuột trái => vẽ hình mới hoặc chọn lại hình hoặc biến đổi Affine
 			if (e.Button == MouseButtons.Left)
@@ -184,6 +185,11 @@ namespace TheHandsGL
 							choosingShape = -1;
 							choosingPoint = new Point(-1, -1);
 						}
+						//Ngược lại => bật chế độ biến đổi Affine
+						else
+						{
+							isTransforming = true;
+						}
 						//Đánh dấu để vẽ lại hình
 						isShapesChanged = true;
 						return;
@@ -193,7 +199,6 @@ namespace TheHandsGL
 				choosingShape = -1;
 				isDrawing = true;
 				lbSelf.Text = "";
-				pStart = pEnd = e.Location;
 
 				//Loại hình vẽ khác POLYGON
 				if (userType != Shape.shapeType.POLYGON)
@@ -222,7 +227,7 @@ namespace TheHandsGL
 					}
 				}
 			}
-			//Nhấn chuột trái => nếu đang vẽ POLYGON => kết thúc quá trình vẽ
+			//Nhấn chuột phải => nếu đang vẽ POLYGON => kết thúc quá trình vẽ
 			else if (isPolygonDrawing)
 			{
 				isDrawing = isPolygonDrawing = false;
@@ -240,10 +245,10 @@ namespace TheHandsGL
 		private void drawBoard_MouseMove(object sender, MouseEventArgs e)
 		{
 			//Sự kiện "kéo chuột", xảy ra liên tục khi người dùng nhấn giữ chuột và kéo đi
+			pEnd = e.Location;
+
 			if (isDrawing)
 			{
-				pEnd = e.Location;
-
 				//Cập nhật điểm điều kiển cuối cùng
 				shapes.Last().controlPoints[shapes.Last().controlPoints.Count - 1] = pEnd;
 
@@ -281,38 +286,51 @@ namespace TheHandsGL
 			}
 			else if (isTransforming)
 			{
-				//Cập nhật điểm điều khiển đang chọn
 				int controlIndex = shapes[choosingShape].controlPoints.IndexOf(choosingPoint);
-				shapes[choosingShape].controlPoints[controlIndex] = choosingPoint = e.Location;
+
+				//Nếu đang chọn điểm điều khiển => cập nhật điểm điều khiển này
+				if (controlIndex >= 0)
+					shapes[choosingShape].controlPoints[controlIndex] = choosingPoint = pEnd;
+				//Ngược lại => tịnh tiến tất cả điểm điều khiển theo vector (pEnd - pStart)
+				else
+				{
+					AffineTransform transformer = new AffineTransform();
+					transformer.Translate(pEnd.X - pStart.X, pEnd.Y - pStart.Y);
+					choosingPoint = transformer.Transform(choosingPoint);
+					pStart = pEnd;
+
+					for (int i = 0; i < shapes[choosingShape].controlPoints.Count; i++)
+						shapes[choosingShape].controlPoints[i] = transformer.Transform(shapes[choosingShape].controlPoints[i]);
+				}
 
 				//Xóa tập điểm vẽ, vẽ lại tập điểm mới
 				shapes[choosingShape].rasterPoints.Clear();
 
-				pStart = shapes[choosingShape].controlPoints[0];
-				pEnd = shapes[choosingShape].controlPoints[1];
+				Point controlPoint0 = shapes[choosingShape].controlPoints[0];
+				Point controlPoint1 = shapes[choosingShape].controlPoints[1];
 
 				switch (shapes[choosingShape].type)
 				{
 					case Shape.shapeType.LINE:
-						DrawingAlgorithms.Line(shapes[choosingShape], pStart, pEnd);
+						DrawingAlgorithms.Line(shapes[choosingShape], controlPoint0, controlPoint1);
 						break;
 					case Shape.shapeType.CIRCLE:
-						DrawingAlgorithms.Circle(shapes[choosingShape], pStart, pEnd);
+						DrawingAlgorithms.Circle(shapes[choosingShape], controlPoint0, controlPoint1);
 						break;
 					case Shape.shapeType.RECTANGLE:
-						DrawingAlgorithms.Rectangle(shapes[choosingShape], pStart, pEnd);
+						DrawingAlgorithms.Rectangle(shapes[choosingShape], controlPoint0, controlPoint1);
 						break;
 					case Shape.shapeType.ELLIPSE:
-						DrawingAlgorithms.Ellipse(shapes[choosingShape], pStart, pEnd);
+						DrawingAlgorithms.Ellipse(shapes[choosingShape], controlPoint0, controlPoint1);
 						break;
 					case Shape.shapeType.TRIANGLE:
-						DrawingAlgorithms.Triangle(shapes[choosingShape], pStart, pEnd);
+						DrawingAlgorithms.Triangle(shapes[choosingShape], controlPoint0, controlPoint1);
 						break;
 					case Shape.shapeType.PENTAGON:
-						DrawingAlgorithms.Pengtagon(shapes[choosingShape], pStart, pEnd);
+						DrawingAlgorithms.Pengtagon(shapes[choosingShape], controlPoint0, controlPoint1);
 						break;
 					case Shape.shapeType.HEXAGON:
-						DrawingAlgorithms.Hexagon(shapes[choosingShape], pStart, pEnd);
+						DrawingAlgorithms.Hexagon(shapes[choosingShape], controlPoint0, controlPoint1);
 						break;
 					case Shape.shapeType.POLYGON:
 						DrawingAlgorithms.Polygon(shapes.Last());
@@ -850,7 +868,7 @@ namespace TheHandsGL
 		public void Multiply(List<double> matrix)
 		{
 			//Hàm nhân một ma trận khác với ma trận hiện hành
-			List<double> retMatrix = new List<double> { 0, 0, 0, 0, 0, 0 };
+			List<double> retMatrix = new List<double> { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 			for (int i = 0; i < 3; i++)
 				for (int j = 0; j < 3; j++)
 					for (int k = 0; k < 3; k++)
