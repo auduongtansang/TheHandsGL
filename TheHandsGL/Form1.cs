@@ -14,6 +14,9 @@ namespace TheHandsGL
 		bool isDrawing = false;
 		//Biến đanh dấu đang vẽ đa giác
 		bool isPolygonDrawing = false;
+		//Biến đánh dấu đang biến đổi Affine
+		bool isTransforming = false;
+
 		//Màu đang chọn
 		Color userColor = Color.White;
 		//Độ dày nét vẽ đang chọn
@@ -31,7 +34,9 @@ namespace TheHandsGL
 		//Sai số pixel, dùng trong chức năng chọn lại hình
 		const double epsilon = 50.0;
 		//Số thứ tự của hình đang được chọn lại, -1 nghĩa là không chọn gì
-		int choosing = -1;
+		int choosingShape = -1;
+		//Điểm vẽ đang được chọn lại, dùng trong biến đổi Affine
+		Point choosingPoint = new Point(-1, -1);
 
 		public mainForm()
 		{
@@ -103,14 +108,14 @@ namespace TheHandsGL
 			}
 
 			//Vẽ điểm điều khiển của hình đang được chọn lại
-			if (choosing >= 0)
+			if (choosingShape >= 0)
 			{
 				gl.PointSize(5.0f);
 				gl.Color(230.0, 230.0, 0);
 
 				gl.Begin(OpenGL.GL_POINTS);
-				for (int i = 0; i < shapes[choosing].controlPoints.Count; i++)
-					gl.Vertex(shapes[choosing].controlPoints[i].X, gl.RenderContextProvider.Height - shapes[choosing].controlPoints[i].Y);
+				for (int i = 0; i < shapes[choosingShape].controlPoints.Count; i++)
+					gl.Vertex(shapes[choosingShape].controlPoints[i].X, gl.RenderContextProvider.Height - shapes[choosingShape].controlPoints[i].Y);
 				gl.End();
 
 				gl.Flush();
@@ -120,39 +125,72 @@ namespace TheHandsGL
 		private void drawBoard_MouseDown(object sender, MouseEventArgs e)
 		{
 			//Sự kiện "nhấn chuột"
-			choosing = -1;
 
 			//Nhấn chuột trái => vẽ hình mới hoặc chọn lại hình
 			if (e.Button == MouseButtons.Left)
 			{
-				//Loại hình vẽ là NONE => chọn lại hình vẽ
+				//Loại hình vẽ là NONE => chọn lại hình vẽ hoặc biến đổi Affine
 				if (userType == Shape.shapeType.NONE)
 				{
-					//Tìm điểm vẽ gần với tọa độ chuột nhất
-					double minDistance = 999999999999999999999999.0;
-					for (int i = 0; i < shapes.Count; i++)
-						for (int j = 0; j < shapes[i].rasterPoints.Count; j++)
+					//Nếu đã chọn trúng hình => biến đổi Affine
+					if (choosingShape >= 0)
+					{
+						//Tìm điểm điều khiển gần với tọa độ chuột nhất
+						double minDistance = 999999999999999999999999.0;
+						Point closestControl = new Point(-1, -1);
+						for (int j = 0; j < shapes[choosingShape].controlPoints.Count; j++)
 						{
-							int dx = shapes[i].rasterPoints[j].X - e.Location.X;
-							int dy = shapes[i].rasterPoints[j].Y - e.Location.Y;
+							int dx = shapes[choosingShape].controlPoints[j].X - e.Location.X;
+							int dy = shapes[choosingShape].controlPoints[j].Y - e.Location.Y;
 							double distance = dx * dx + dy * dy;
 							if (distance < minDistance)
 							{
 								minDistance = distance;
-								choosing = i;
+								closestControl = shapes[choosingShape].controlPoints[j];
 							}
 						}
-					//Nếu khoảng cách nhỏ nhất mà vẫn lớn hơn epsilon => không chọn trúng hình nào hết
-					if (minDistance > epsilon)
-					{
-						choosing = -1;
-						return;
+						//Nếu khoảng cách nhỏ nhất nhỏ hơn epsilon => chọn điểm điều khiển này
+						if (minDistance <= epsilon)
+						{
+							choosingPoint = closestControl;
+							isTransforming = true;
+							return;
+						}
+						//Ngược lại => hủy chọn hình và chọn lại hình khác
+						choosingShape = -1;
 					}
 
-					isShapesChanged = true;
-					return;
+					//Chưa chọn trúng hình nào => chọn hình vẽ
+					if (choosingShape == -1)
+					{
+						//Tìm điểm vẽ gần với tọa độ chuột nhất
+						double minDistance = 999999999999999999999999.0;
+						for (int i = 0; i < shapes.Count; i++)
+							for (int j = 0; j < shapes[i].rasterPoints.Count; j++)
+							{
+								int dx = shapes[i].rasterPoints[j].X - e.Location.X;
+								int dy = shapes[i].rasterPoints[j].Y - e.Location.Y;
+								double distance = dx * dx + dy * dy;
+								if (distance < minDistance)
+								{
+									minDistance = distance;
+									choosingShape = i;
+									choosingPoint = shapes[i].rasterPoints[j];
+								}
+							}
+						//Nếu khoảng cách nhỏ nhất mà vẫn lớn hơn epsilon => không chọn trúng hình nào hết
+						if (minDistance > epsilon)
+						{
+							choosingShape = -1;
+							choosingPoint = new Point(-1, -1);
+						}
+						//Ngược lại => vẽ các điểm điều khiển ra màn hình
+						isShapesChanged = true;
+						return;
+					}
 				}
 
+				choosingShape = -1;
 				isDrawing = true;
 				lbSelf.Text = "";
 				pStart = pEnd = e.Location;
@@ -196,6 +234,7 @@ namespace TheHandsGL
 			//Sự kiện "nhả chuột", kết thúc quá trình vẽ
 			if (userType != Shape.shapeType.POLYGON)
 				isDrawing = false;
+			isTransforming = false;
 		}
 
 		private void drawBoard_MouseMove(object sender, MouseEventArgs e)
@@ -233,6 +272,46 @@ namespace TheHandsGL
 						break;
 					case Shape.shapeType.HEXAGON:
 						DrawingAlgorithms.Hexagon(shapes.Last(), pStart, pEnd);
+						break;
+					case Shape.shapeType.POLYGON:
+						DrawingAlgorithms.Polygon(shapes.Last());
+						break;
+				}
+				isShapesChanged = true;
+			}
+			else if (isTransforming)
+			{
+				int controlIndex = shapes[choosingShape].controlPoints.IndexOf(choosingPoint);
+				shapes[choosingShape].controlPoints[controlIndex] = choosingPoint = e.Location;
+
+				//Xóa tập điểm vẽ, vẽ lại tập điểm mới
+				shapes[choosingShape].rasterPoints.Clear();
+
+				pStart = shapes[choosingShape].controlPoints[0];
+				pEnd = shapes[choosingShape].controlPoints[1];
+
+				switch (shapes[choosingShape].type)
+				{
+					case Shape.shapeType.LINE:
+						DrawingAlgorithms.Line(shapes[choosingShape], pStart, pEnd);
+						break;
+					case Shape.shapeType.CIRCLE:
+						DrawingAlgorithms.Circle(shapes[choosingShape], pStart, pEnd);
+						break;
+					case Shape.shapeType.RECTANGLE:
+						DrawingAlgorithms.Rectangle(shapes[choosingShape], pStart, pEnd);
+						break;
+					case Shape.shapeType.ELLIPSE:
+						DrawingAlgorithms.Ellipse(shapes[choosingShape], pStart, pEnd);
+						break;
+					case Shape.shapeType.TRIANGLE:
+						DrawingAlgorithms.Triangle(shapes[choosingShape], pStart, pEnd);
+						break;
+					case Shape.shapeType.PENTAGON:
+						DrawingAlgorithms.Pengtagon(shapes[choosingShape], pStart, pEnd);
+						break;
+					case Shape.shapeType.HEXAGON:
+						DrawingAlgorithms.Hexagon(shapes[choosingShape], pStart, pEnd);
 						break;
 					case Shape.shapeType.POLYGON:
 						DrawingAlgorithms.Polygon(shapes.Last());
@@ -301,7 +380,7 @@ namespace TheHandsGL
 		private void btnClear_Click(object sender, EventArgs e)
 		{
 			//Sự kiện "xóa toàn bộ"
-			choosing = -1;
+			choosingShape = -1;
 			shapes.Clear();
 			isShapesChanged = true;
 			isDrawing = isPolygonDrawing = false;
@@ -329,7 +408,7 @@ namespace TheHandsGL
 			if (e.KeyCode == Keys.Z && e.Control && shapes.Count > 0)
 			{
 				//Ctrl + Z => undo
-				choosing = -1;
+				choosingShape = -1;
 				shapes.RemoveAt(shapes.Count - 1);
 				isShapesChanged = true;
 			}
@@ -344,9 +423,10 @@ namespace TheHandsGL
 				}
 				else
 				{
-					choosing = -1;
+					choosingShape = -1;
 					userType = Shape.shapeType.NONE;
 					lbMode.Text = "Mode: Picking";
+					isShapesChanged = true;
 				}
 			}
 		}
@@ -750,6 +830,63 @@ namespace TheHandsGL
 				Line(newShape, newShape.controlPoints[i], newShape.controlPoints[i + 1]);
 
 			Line(newShape, newShape.controlPoints.Last(), newShape.controlPoints[0]);
+		}
+	}
+
+	public class AffineTransform
+	{
+		//Lớp "AffineTransform", định nghĩa các phép biến đổi Affine 2D (3x3)
+
+		//Ma trận biến đổi Affine
+		public List<double> transformMatrix;
+
+		public AffineTransform()
+		{
+			//Hàm khởi tạo (khởi tạo bằng ma trận đơn vị)
+			transformMatrix = new List<double> { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+		}
+
+		public void Multiply(List<double> matrix)
+		{
+			//Hàm nhân một ma trận khác với ma trận hiện hành
+			List<double> retMatrix = new List<double> { 0, 0, 0, 0, 0, 0 };
+			for (int i = 0; i < 3; i++)
+				for (int j = 0; j < 3; j++)
+					for (int k = 0; k < 3; k++)
+						retMatrix[i * 3 + j] += matrix[i * 3 + k] * transformMatrix[k * 3 + j];
+			transformMatrix = retMatrix;
+		}
+
+		public void LoadIdentity()
+		{
+			//Reset ma trận hiện hành về ma trận đơn vị
+			transformMatrix = new List<double> { 1, 0, 0, 0, 1, 0, 0, 0, 1 };
+		}
+
+		public void Translate(double dx, double dy)
+		{
+			//Hàm tạo ma trận tịnh tiến và nhân với ma trận hiện hành
+			List<double> transformMatrix = new List<double> { 1, 0, dx, 0, 1, dy, 0, 0, 1 };
+			Multiply(transformMatrix);
+		}
+
+		public void Rotate(double phi)
+		{
+			//Hàm tạo ma trận xoay và nhân với mà trận hiện hành
+			double cosPhi = Math.Cos(phi), sinPhi = Math.Sin(phi);
+			List<double> rotateMatrix = new List<double> { cosPhi, -sinPhi, 0, sinPhi, cosPhi, 0, 0, 0, 1 };
+			Multiply(rotateMatrix);
+		}
+
+		public Point Transform(Point p)
+		{
+			//Hàm áp dụng phép biến đổi lên một điểm
+			List<double> oriPoint = new List<double> { p.X, p.Y, 1.0 };
+			List<double> retPoint = new List<double> { 0, 0, 0 };
+			for (int i = 0; i < 3; i++)
+				for (int j = 0; j < 3; j++)
+					retPoint[i] += transformMatrix[i * 3 + j] * oriPoint[j];
+			return new Point((int)(retPoint[0]), (int)(retPoint[1]));
 		}
 	}
 }
