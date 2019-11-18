@@ -10,25 +10,27 @@ namespace TheHandsGL
 {
 	public partial class mainForm : Form
 	{
-		//Biến đánh dấu rằng người dùng đang vẽ hình (quá trình vẽ bắt đầu khi nhấn chuột, kết thúc khi nhả chuột)
+		//Biến đánh dấu đang vẽ hình
 		bool isDrawing = false;
-		//Biến đanh dấu rằng người dùng đang vẽ hình đa giác
+		//Biến đanh dấu đang vẽ đa giác
 		bool isPolygonDrawing = false;
-		//Màu người dùng đang chọn
+		//Màu đang chọn
 		Color userColor = Color.White;
-		//Độ dày nét vẽ người dùng đang chọn
+		//Độ dày nét vẽ đang chọn
 		float userWidth = 1.0f;
-		//Loại hình vẽ người dùng đang chọn
+		//Loại hình vẽ đang chọn để vẽ
 		Shape.shapeType userType = Shape.shapeType.NONE;
+
 		//Tọa độ chuột
 		Point pStart = new Point(0, 0), pEnd = new Point(0, 0);
 		//Tập các hình đã vẽ
 		List<Shape> shapes = new List<Shape>();
-		//Biến đánh dấu rằng tập hình vẽ đã bị thay đổi, cần phải vẽ lại
+		//Biến đánh dấu tập hình vẽ bị thay đổi => phải vẽ lại
 		bool isShapesChanged = true;
-		//Sai số pixel dùng trong chức năng chọn hình vẽ
-		const float epsilon = 10.0f;
-		//Số thứ tự của hình đang được chọn, -1 nghĩa là không chọn gì
+
+		//Sai số pixel, dùng trong chức năng chọn lại hình
+		const double epsilon = 50.0;
+		//Số thứ tự của hình đang được chọn lại, -1 nghĩa là không chọn gì
 		int choosing = -1;
 
 		public mainForm()
@@ -63,9 +65,10 @@ namespace TheHandsGL
 			gl.LoadIdentity();
 			//Set viewport theo kích thước mới
 			gl.Viewport(0, 0, drawBoard.Width, drawBoard.Height);
+
 			//Chiếu lên viewport này
 			gl.Ortho2D(0, drawBoard.Width, 0, drawBoard.Height);
-			//Set biến đánh dấu để vẽ lại hình
+			//Set biến đánh dấu để vẽ lại
 			isShapesChanged = true;
 		}
 
@@ -76,7 +79,7 @@ namespace TheHandsGL
 			//Lấy đối tượng OpenGL
 			OpenGL gl = drawBoard.OpenGL;
 
-			//Tuy nhiên, chỉ cần vẽ khi biến cờ isShapesChanged được bật lên
+			//Chỉ vẽ khi tập hình vẽ bị thay đổi
 			if (isShapesChanged)
 			{
 				//Xóa toàn bộ drawBoard
@@ -99,7 +102,7 @@ namespace TheHandsGL
 				isShapesChanged = false;
 			}
 
-			//Vẽ điểm điều khiển của hình đang được chọn
+			//Vẽ điểm điều khiển của hình đang được chọn lại
 			if (choosing >= 0)
 			{
 				gl.PointSize(5.0f);
@@ -116,59 +119,72 @@ namespace TheHandsGL
 
 		private void drawBoard_MouseDown(object sender, MouseEventArgs e)
 		{
-			//Sự kiện "nhấn chuột", bắt đầu quá trình vẽ hoặc chọn một hình đã vẽ
+			//Sự kiện "nhấn chuột"
 			choosing = -1;
 
-			if (userType == Shape.shapeType.NONE)
-			{
-				//Duyệt tất cả điểm vẽ để tìm điểm gần tọa độ chuột nhất
-				double minDistance = 999999999999999999999999.0;
-				for (int i = 0; i < shapes.Count; i++)
-					for (int j = 0; j < shapes[i].rasterPoints.Count; j++)
-					{
-						int dx = shapes[i].rasterPoints[j].X - e.Location.X;
-						int dy = shapes[i].rasterPoints[j].Y - e.Location.Y;
-						double distance = Math.Sqrt(dx * dx + dy * dy);
-						if (distance < minDistance)
-						{
-							minDistance = distance;
-							choosing = i;
-						}
-					}
-                //Nếu khoảng cách nhỏ nhất vẫn lớn hơn epsilon => không chọn trúng hình nào hết
-				if (minDistance > epsilon)
-					choosing = -1;
-
-				isShapesChanged = true;
-				return;
-			}
-
+			//Nhấn chuột trái => vẽ hình mới hoặc chọn lại hình
 			if (e.Button == MouseButtons.Left)
 			{
+				//Loại hình vẽ là NONE => chọn lại hình vẽ
+				if (userType == Shape.shapeType.NONE)
+				{
+					//Tìm điểm vẽ gần với tọa độ chuột nhất
+					double minDistance = 999999999999999999999999.0;
+					for (int i = 0; i < shapes.Count; i++)
+						for (int j = 0; j < shapes[i].rasterPoints.Count; j++)
+						{
+							int dx = shapes[i].rasterPoints[j].X - e.Location.X;
+							int dy = shapes[i].rasterPoints[j].Y - e.Location.Y;
+							double distance = dx * dx + dy * dy;
+							if (distance < minDistance)
+							{
+								minDistance = distance;
+								choosing = i;
+							}
+						}
+					//Nếu khoảng cách nhỏ nhất mà vẫn lớn hơn epsilon => không chọn trúng hình nào hết
+					if (minDistance > epsilon)
+					{
+						choosing = -1;
+						return;
+					}
+
+					isShapesChanged = true;
+					return;
+				}
+
 				isDrawing = true;
-				tbSelf.Text = "";
+				lbSelf.Text = "";
 				pStart = pEnd = e.Location;
 
-				/*
-				Không tạo ra hình vẽ mới nếu đang trong quá trình vẽ đa giác
-				Mà chỉ cần thêm tọa độ chuột vào tập điểm điều khiển
-				*/
-				if (userType == Shape.shapeType.POLYGON && isPolygonDrawing == false)
+				//Loại hình vẽ khác POLYGON
+				if (userType != Shape.shapeType.POLYGON)
 				{
-					//Tạo hình vẽ mới
-					isPolygonDrawing = true;
+					//Tạo hình vẽ mới, thêm vào danh sách
 					shapes.Add(new Shape(userColor, userWidth, userType));
 					shapes.Last().controlPoints.Add(pStart);
-				}
-				else if (userType != Shape.shapeType.POLYGON)
-				{
-					//Tạo hình vẽ mới
-					shapes.Add(new Shape(userColor, userWidth, userType));
-					shapes.Last().controlPoints.Add(pStart);
+					shapes.Last().controlPoints.Add(pEnd);
 				}
 
-				shapes.Last().controlPoints.Add(pEnd);
+				//Loại hình vẽ là POLYGON
+				if (userType == Shape.shapeType.POLYGON)
+				{
+					//Nếu bắt đầu vẽ => tạo hình vẽ mới
+					if (isPolygonDrawing == false)
+					{
+						isPolygonDrawing = true;
+						shapes.Add(new Shape(userColor, userWidth, userType));
+						shapes.Last().controlPoints.Add(pStart);
+						shapes.Last().controlPoints.Add(pEnd);
+					}
+					//Nếu đang vẽ => không tạo ra hình mới, thêm điểm chuột vào tập điểm điều khiển
+					else
+					{
+						shapes.Last().controlPoints.Add(pEnd);
+					}
+				}
 			}
+			//Nhấn chuột trái => nếu đang vẽ POLYGON => kết thúc quá trình vẽ
 			else if (isPolygonDrawing)
 			{
 				isDrawing = isPolygonDrawing = false;
@@ -192,8 +208,9 @@ namespace TheHandsGL
 				//Cập nhật điểm điều kiển cuối cùng
 				shapes.Last().controlPoints[shapes.Last().controlPoints.Count - 1] = pEnd;
 
-				//Xóa tập điểm vẽ của hình đang vẽ, và tạo lại tập điểm vẽ mới
+				//Xóa tập điểm vẽ, vẽ lại tập điểm mới
 				shapes.Last().rasterPoints.Clear();
+
 				switch (userType)
 				{
 					case Shape.shapeType.LINE:
@@ -248,35 +265,35 @@ namespace TheHandsGL
 
 		private void btnEllipse_Click(object sender, EventArgs e)
 		{
-			//Sự kiện "chọn vẽ đường ellipse"
+			//Sự kiện "chọn vẽ ellipse"
 			userType = Shape.shapeType.ELLIPSE;
 			lbMode.Text = "Mode: Ellipse";
 		}
 
 		private void btnTriangle_Click(object sender, EventArgs e)
 		{
-			//Sự kiện "chọn vẽ hình tam giác đều"
+			//Sự kiện "chọn vẽ tam giác đều"
 			userType = Shape.shapeType.TRIANGLE;
 			lbMode.Text = "Mode: Triangle";
 		}
 
 		private void btnPentagon_Click(object sender, EventArgs e)
 		{
-			//Sự kiện "chọn vẽ hình ngũ giác đều"
+			//Sự kiện "chọn vẽ ngũ giác đều"
 			userType = Shape.shapeType.PENTAGON;
 			lbMode.Text = "Mode: Pentagon";
 		}
 
 		private void btnHexagon_Click(object sender, EventArgs e)
 		{
-			//Sự kiện "chọn vẽ hình lục giác đều"
+			//Sự kiện "chọn vẽ lục giác đều"
 			userType = Shape.shapeType.HEXAGON;
 			lbMode.Text = "Mode: Hexagon";
 		}
 
 		private void btnPolygon_Click(object sender, EventArgs e)
 		{
-			//Sự kiện "chọn vẽ hình đa giác"
+			//Sự kiện "chọn vẽ đa giác"
 			userType = Shape.shapeType.POLYGON;
 			lbMode.Text = "Mode: Polygon";
 		}
@@ -311,14 +328,14 @@ namespace TheHandsGL
 			//Sự kiện "bấm bàn phím"
 			if (e.KeyCode == Keys.Z && e.Control && shapes.Count > 0)
 			{
-				//Ctrl + Z
+				//Ctrl + Z => undo
 				choosing = -1;
 				shapes.RemoveAt(shapes.Count - 1);
 				isShapesChanged = true;
 			}
 			else if (e.KeyCode == Keys.Escape)
 			{
-				//Esc
+				//Esc => hủy bỏ thao tác
 				if (isDrawing)
 				{
 					isDrawing = isPolygonDrawing = false;
@@ -337,7 +354,7 @@ namespace TheHandsGL
 
 	class Shape
 	{
-		//Lớp "Shape", định nghĩa một hình vẽ
+		//Lớp "Shape", đối tượng hình vẽ
 		public enum shapeType { NONE, LINE, CIRCLE, RECTANGLE, ELLIPSE, TRIANGLE, PENTAGON, HEXAGON, POLYGON }
 
 		//Màu nét vẽ
@@ -346,9 +363,10 @@ namespace TheHandsGL
 		public float width;
 		//Loại hình vẽ
 		public shapeType type;
-		//Tập các điểm điều kiển. Lưu ý, để các hàm build-in của OpenGL vẽ đúng, các điểm điều khiển phải đúng thứ tự
+
+		//Tập điểm điều kiển. Lưu ý, để các hàm build-in của OpenGL vẽ đúng, các điểm điều khiển phải đúng thứ tự
 		public List<Point> controlPoints;
-		//Tập các điểm vẽ
+		//Tập điểm vẽ
 		public List<Point> rasterPoints;
 
 		public Shape(Color userColor, float userWidth, shapeType userType)
@@ -357,6 +375,7 @@ namespace TheHandsGL
 			color = userColor;
 			width = userWidth;
 			type = userType;
+
 			rasterPoints = new List<Point>();
 			controlPoints = new List<Point>();
 		}
@@ -364,7 +383,7 @@ namespace TheHandsGL
 		public void draw(OpenGL gl)
 		{
 			//Set màu nét vẽ
-			gl.Color((byte)color.R, (byte)color.G, (byte)color.B, color.A);
+			gl.Color(color.R, color.G, color.B, color.A);
 
 			gl.PointSize(width);
 			gl.Begin(OpenGL.GL_POINTS);
@@ -406,7 +425,7 @@ namespace TheHandsGL
 			float m = (float)dy2 / dx2;
 			bool negativeM = false, largeM = false;
 
-			//Nếu m < 0, lấy đối xứng qua x = 0
+			//Nếu m < 0, đối xứng qua trục x = 0
 			if (m < 0)
 			{
 				pEnd.Y = -pEnd.Y;
@@ -415,7 +434,7 @@ namespace TheHandsGL
 				negativeM = true;
 			}
 
-			//Nếu m > 1, lấy đối xứng qua y = x
+			//Nếu m > 1, đối xứng qua trục y = x
 			if (m > 1)
 			{
 				(pEnd.X, pEnd.Y) = (pEnd.Y, pEnd.X);
@@ -448,12 +467,12 @@ namespace TheHandsGL
 				points.Add(new Point(x, y));
 			}
 
-			//Đối xứng lại qua y = x
+			//Đối xứng lại qua trục y = x
 			if (largeM == true)
 				for (int i = 0; i < points.Count; i++)
 					points[i] = new Point(points[i].Y, points[i].X);
 
-			//Đối xứng lại qua y = 0
+			//Đối xứng lại qua trục y = 0
 			if (negativeM == true)
 				for (int i = 0; i < points.Count; i++)
 					points[i] = new Point(points[i].X, -points[i].Y);
@@ -467,8 +486,8 @@ namespace TheHandsGL
 
 		public static void Circle(Shape newShape, Point pStart, Point pEnd)
 		{
-			//Thực ra lấy theo chiều kim đồng hồ nhưng màn hình console 
-			//Tính điểm (0, 0) ở gốc trên và tăng dần từ trên xuống nên thành ra ngược chiều kim đồng hồ
+			//Lấy theo chiều kim đồng hồ
+			//Nhưng form tính điểm (0, 0) từ góc trên xuống nên thành ngược chiều kim đồng hồ
 
 			//Tính bán kính r
 			double r = Math.Sqrt(Math.Pow(pStart.X - pEnd.X, 2) + Math.Pow(pStart.Y - pEnd.Y, 2)) / 2;
@@ -483,7 +502,7 @@ namespace TheHandsGL
 			//Tính tâm để tịnh tiến hình tròn theo vector (xC, yC)
 			Point pCenter = new Point((pStart.X + pEnd.X) / 2, (pStart.Y + pEnd.Y) / 2);
 
-			//List chứa điểm ở 1/8 và đối xứng của 1/8 qua y = x
+			//List chứa điểm ở 1/8 và đối xứng của 1/8 qua trục y = x
 			List<Point> partsOfCircle = new List<Point>();
 
 			//Add điểm đầu vào
@@ -557,9 +576,11 @@ namespace TheHandsGL
 
 		public static void Triangle(Shape newShape, Point pStart, Point pEnd)
 		{
-			//Tịnh tiến pStart, pEnd về (0, 0)
-			//pStart = (0, 0), tuy nhiên phải giữ lại giá trị cũ, xem như pStart là vector tịnh tiến
-			(pEnd.X, pEnd.Y) = (pEnd.X - pStart.X, pEnd.Y - pStart.Y);
+			//Tịnh tiến sao cho pStart trùng với (0, 0)
+			//Vector tịnh tiến là move
+			Point move = new Point(pStart.X, pStart.Y);
+			(pStart.X, pStart.Y) = (0, 0);
+			(pEnd.X, pEnd.Y) = (pEnd.X - move.X, pEnd.Y - move.Y);
 
 			//Quay pEnd quanh tâm 60 độ để được điểm mới
 			Point p = new Point();
@@ -570,8 +591,9 @@ namespace TheHandsGL
 			p.Y = (int)(pEnd.X * sinPhi + pEnd.Y * cosPhi);
 
 			//Tịnh tiến về như cũ
-			(pEnd.X, pEnd.Y) = (pEnd.X + pStart.X, pEnd.Y + pStart.Y);
-			(p.X, p.Y) = (p.X + pStart.X, p.Y + pStart.Y);
+			(pStart.X, pStart.Y) = (pStart.X + move.X, pStart.Y + move.Y);
+			(pEnd.X, pEnd.Y) = (pEnd.X + move.X, pEnd.Y + move.Y);
+			(p.X, p.Y) = (p.X + move.X, p.Y + move.Y);
 
 			Line(newShape, pStart, pEnd);
 			Line(newShape, pEnd, p);
@@ -580,9 +602,11 @@ namespace TheHandsGL
 
 		public static void Pengtagon(Shape newShape, Point pStart, Point pEnd)
 		{
-			//Tịnh tiến pStart, pEnd về (0, 0)
-			//pStart = (0, 0), tuy nhiên phải giữ lại giá trị cũ, xem như pStart là vector tịnh tiến
-			(pEnd.X, pEnd.Y) = (pEnd.X - pStart.X, pEnd.Y - pStart.Y);
+			//Tịnh tiến sao cho pStart trùng với (0, 0)
+			//Vector tịnh tiến là move
+			Point move = new Point(pStart.X, pStart.Y);
+			(pStart.X, pStart.Y) = (0, 0);
+			(pEnd.X, pEnd.Y) = (pEnd.X - move.X, pEnd.Y - move.Y);
 
 			//Quay pEnd quanh tâm 72 độ để được điểm mới
 			Point p1 = new Point();
@@ -605,11 +629,12 @@ namespace TheHandsGL
 			p4.Y = (int)(p3.X * sinPhi + p3.Y * cosPhi);
 
 			//Tịnh tiến về như cũ
-			(pEnd.X, pEnd.Y) = (pEnd.X + pStart.X, pEnd.Y + pStart.Y);
-			(p1.X, p1.Y) = (p1.X + pStart.X, p1.Y + pStart.Y);
-			(p2.X, p2.Y) = (p2.X + pStart.X, p2.Y + pStart.Y);
-			(p3.X, p3.Y) = (p3.X + pStart.X, p3.Y + pStart.Y);
-			(p4.X, p4.Y) = (p4.X + pStart.X, p4.Y + pStart.Y);
+			(pStart.X, pStart.Y) = (pStart.X + move.X, pStart.Y + move.Y);
+			(pEnd.X, pEnd.Y) = (pEnd.X + move.X, pEnd.Y + move.Y);
+			(p1.X, p1.Y) = (p1.X + move.X, p1.Y + move.Y);
+			(p2.X, p2.Y) = (p2.X + move.X, p2.Y + move.Y);
+			(p3.X, p3.Y) = (p3.X + move.X, p3.Y + move.Y);
+			(p4.X, p4.Y) = (p4.X + move.X, p4.Y + move.Y);
 
 			Line(newShape, pEnd, p1);
 			Line(newShape, p1, p2);
