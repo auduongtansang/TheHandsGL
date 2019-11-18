@@ -126,13 +126,13 @@ namespace TheHandsGL
 		{
 			//Sự kiện "nhấn chuột"
 
-			//Nhấn chuột trái => vẽ hình mới hoặc chọn lại hình
+			//Nhấn chuột trái => vẽ hình mới hoặc chọn lại hình hoặc biến đổi Affine
 			if (e.Button == MouseButtons.Left)
 			{
 				//Loại hình vẽ là NONE => chọn lại hình vẽ hoặc biến đổi Affine
 				if (userType == Shape.shapeType.NONE)
 				{
-					//Nếu đã chọn trúng hình => biến đổi Affine
+					//Nếu đã đang chọn trúng hình => biến đổi Affine
 					if (choosingShape >= 0)
 					{
 						//Tìm điểm điều khiển gần với tọa độ chuột nhất
@@ -160,7 +160,7 @@ namespace TheHandsGL
 						choosingShape = -1;
 					}
 
-					//Chưa chọn trúng hình nào => chọn hình vẽ
+					//Đang không chọn trúng hình nào => chọn hình vẽ
 					if (choosingShape == -1)
 					{
 						//Tìm điểm vẽ gần với tọa độ chuột nhất
@@ -184,7 +184,7 @@ namespace TheHandsGL
 							choosingShape = -1;
 							choosingPoint = new Point(-1, -1);
 						}
-						//Ngược lại => vẽ các điểm điều khiển ra màn hình
+						//Đánh dấu để vẽ lại hình
 						isShapesChanged = true;
 						return;
 					}
@@ -281,6 +281,7 @@ namespace TheHandsGL
 			}
 			else if (isTransforming)
 			{
+				//Cập nhật điểm điều khiển đang chọn
 				int controlIndex = shapes[choosingShape].controlPoints.IndexOf(choosingPoint);
 				shapes[choosingShape].controlPoints[controlIndex] = choosingPoint = e.Location;
 
