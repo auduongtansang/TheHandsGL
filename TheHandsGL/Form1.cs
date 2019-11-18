@@ -333,7 +333,7 @@ namespace TheHandsGL
 						DrawingAlgorithms.Hexagon(shapes[choosingShape], controlPoint0, controlPoint1);
 						break;
 					case Shape.shapeType.POLYGON:
-						DrawingAlgorithms.Polygon(shapes.Last());
+						DrawingAlgorithms.Polygon(shapes[choosingShape]);
 						break;
 				}
 				isShapesChanged = true;
