@@ -206,7 +206,7 @@ namespace TheHandsGL
 				//Nếu userType khác NONE => vẽ hình mới
 				choosingShape = -1;
 				isDrawing = true;
-				lbSelf.Text = "";
+				tbSelf.Text = "";
 
 				//Nếu userType khác POLYGON => tạo hình vẽ mới, thêm vào danh sách
 				if (userType != Shape.shapeType.POLYGON)
@@ -358,56 +358,56 @@ namespace TheHandsGL
 		{
 			//Sự kiện "chọn vẽ đường thẳng"
 			userType = Shape.shapeType.LINE;
-			lbMode.Text = "Mode: Line (press ESC to cancel)";
+			lbMode.Text = "Mode: Line (ESC to cancel)";
 		}
 
 		private void btnCircle_Click(object sender, EventArgs e)
 		{
 			//Sự kiện "chọn vẽ đường tròn"
 			userType = Shape.shapeType.CIRCLE;
-			lbMode.Text = "Mode: Circle (press ESC to cancel)";
+			lbMode.Text = "Mode: Circle (ESC to cancel)";
 		}
 
 		private void btnRectangle_Click(object sender, EventArgs e)
 		{
 			//Sự kiện "chọn vẽ hình chữ nhật"
 			userType = Shape.shapeType.RECTANGLE;
-			lbMode.Text = "Mode: Rectangle (press ESC to cancel)";
+			lbMode.Text = "Mode: Rectangle (ESC to cancel)";
 		}
 
 		private void btnEllipse_Click(object sender, EventArgs e)
 		{
 			//Sự kiện "chọn vẽ ellipse"
 			userType = Shape.shapeType.ELLIPSE;
-			lbMode.Text = "Mode: Ellipse (press ESC to cancel)";
+			lbMode.Text = "Mode: Ellipse (ESC to cancel)";
 		}
 
 		private void btnTriangle_Click(object sender, EventArgs e)
 		{
 			//Sự kiện "chọn vẽ tam giác đều"
 			userType = Shape.shapeType.TRIANGLE;
-			lbMode.Text = "Mode: Triangle (press ESC to cancel)";
+			lbMode.Text = "Mode: Triangle (ESC to cancel)";
 		}
 
 		private void btnPentagon_Click(object sender, EventArgs e)
 		{
 			//Sự kiện "chọn vẽ ngũ giác đều"
 			userType = Shape.shapeType.PENTAGON;
-			lbMode.Text = "Mode: Pentagon (press ESC to cancel)";
+			lbMode.Text = "Mode: Pentagon (ESC to cancel)";
 		}
 
 		private void btnHexagon_Click(object sender, EventArgs e)
 		{
 			//Sự kiện "chọn vẽ lục giác đều"
 			userType = Shape.shapeType.HEXAGON;
-			lbMode.Text = "Mode: Hexagon (press ESC to cancel)";
+			lbMode.Text = "Mode: Hexagon (ESC to cancel)";
 		}
 
 		private void btnPolygon_Click(object sender, EventArgs e)
 		{
 			//Sự kiện "chọn vẽ đa giác"
 			userType = Shape.shapeType.POLYGON;
-			lbMode.Text = "Mode: Polygon (press ESC to cancel)";
+			lbMode.Text = "Mode: Polygon (ESC to cancel)";
 		}
 
 		private void btnClear_Click(object sender, EventArgs e)
