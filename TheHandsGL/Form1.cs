@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using System.Diagnostics;
+using System.Threading;
 
 namespace TheHandsGL
 {
@@ -109,7 +110,7 @@ namespace TheHandsGL
 				isShapesChanged = false;
 			}
 
-			//Vẽ điểm điều khiển của hình đã vẽ đang được chọn lại
+			//Vẽ điểm điều khiển của hình đang được chọn lại
 			if (choosingShape >= 0)
 			{
 				gl.PointSize(5.0f);
@@ -135,74 +136,83 @@ namespace TheHandsGL
 				//Nếu userType là NONE => chọn lại hình đã vẽ, hoặc biến đổi Affine
 				if (userType == Shape.shapeType.NONE)
 				{
-					//Nếu một hình nào đó đang được chọn => biến đổi Affine
-					if (choosingShape >= 0)
-					{
-						//Tìm điểm điều khiển gần với tọa độ chuột nhất
-						double minDistance = 999999999999999999999999.0;
-						int closestControl = -1;
-
-						for (int j = 0; j < shapes[choosingShape].controlPoints.Count; j++)
+					Thread thread = new Thread
+					(
+						delegate()
 						{
-							int dx = shapes[choosingShape].controlPoints[j].X - e.Location.X;
-							int dy = shapes[choosingShape].controlPoints[j].Y - e.Location.Y;
-							double distance = dx * dx + dy * dy;
-
-							if (distance < minDistance)
+							//Nếu một hình nào đó đang được chọn => biến đổi Affine
+							if (choosingShape >= 0)
 							{
-								minDistance = distance;
-								closestControl = j;
-							}
-						}
+								//Tìm điểm điều khiển gần với tọa độ chuột nhất
+								double minDistance = 999999999999999999999999.0;
+								int closestControl = -1;
 
-						//Nếu khoảng cách nhỏ nhất nhỏ hơn epsilon => chọn điểm điều khiển này
-						if (minDistance <= epsilon)
-						{
-							choosingControl = closestControl;
-							isTransforming = true;
-							return;
-						}
-
-						//Ngược lại => hủy chọn hình và chọn lại hình khác
-						choosingShape = choosingControl = choosingRaster = -1;
-					}
-
-					//Nếu không hình nào đang được chọn => chọn lại hình
-					if (choosingShape == -1)
-					{
-						//Tìm điểm vẽ gần với tọa độ chuột nhất
-						double minDistance = 999999999999999999999999.0;
-						int closestRaster = -1;
-
-						for (int i = 0; i < shapes.Count; i++)
-							for (int j = 0; j < shapes[i].rasterPoints.Count; j++)
-							{
-								int dx = shapes[i].rasterPoints[j].X - e.Location.X;
-								int dy = shapes[i].rasterPoints[j].Y - e.Location.Y;
-								double distance = dx * dx + dy * dy;
-
-								if (distance < minDistance)
+								for (int j = 0; j < shapes[choosingShape].controlPoints.Count; j++)
 								{
-									choosingShape = i;
-									minDistance = distance;
-									closestRaster = j;
+									int dx = shapes[choosingShape].controlPoints[j].X - e.Location.X;
+									int dy = shapes[choosingShape].controlPoints[j].Y - e.Location.Y;
+									double distance = dx * dx + dy * dy;
+
+									if (distance < minDistance)
+									{
+										minDistance = distance;
+										closestControl = j;
+									}
 								}
+
+								//Nếu khoảng cách nhỏ nhất nhỏ hơn epsilon => chọn điểm điều khiển này
+								if (minDistance <= epsilon)
+								{
+									choosingControl = closestControl;
+									isTransforming = true;
+									return;
+								}
+
+								//Ngược lại => hủy chọn hình và chọn lại hình khác
+								choosingShape = choosingControl = choosingRaster = -1;
 							}
 
-						//Nếu khoảng cách nhỏ nhất nhỏ hơn epsilon => chọn hình này
-						if (minDistance <= epsilon)
-						{
-							choosingRaster = closestRaster;
-							isTransforming = true;
-							isShapesChanged = true;
-							return;
-						}
+							//Nếu không hình nào đang được chọn => chọn lại hình
+							if (choosingShape == -1)
+							{
+								//Tìm điểm vẽ gần với tọa độ chuột nhất
+								double minDistance = 999999999999999999999999.0;
+								int closestRaster = -1;
 
-						//Ngược lại => không chọn hình nào hết
-						choosingShape = choosingControl = choosingRaster = -1;
-						isShapesChanged = true;
-						return;
-					}
+								for (int i = 0; i < shapes.Count; i++)
+									for (int j = 0; j < shapes[i].rasterPoints.Count; j++)
+									{
+										int dx = shapes[i].rasterPoints[j].X - e.Location.X;
+										int dy = shapes[i].rasterPoints[j].Y - e.Location.Y;
+										double distance = dx * dx + dy * dy;
+
+										if (distance < minDistance)
+										{
+											choosingShape = i;
+											minDistance = distance;
+											closestRaster = j;
+										}
+									}
+
+								//Nếu khoảng cách nhỏ nhất nhỏ hơn epsilon => chọn hình này
+								if (minDistance <= epsilon)
+								{
+									choosingRaster = closestRaster;
+									isTransforming = true;
+									isShapesChanged = true;
+									return;
+								}
+
+								//Ngược lại => không chọn hình nào hết
+								choosingShape = choosingControl = choosingRaster = -1;
+								isShapesChanged = true;
+								return;
+							}
+						}
+					);
+					thread.IsBackground = true;
+					thread.Start();
+					return;
 				}
 
 				//Nếu userType khác NONE => vẽ hình mới
@@ -260,100 +270,116 @@ namespace TheHandsGL
 			//Nếu đang vẽ => chỉ cập nhật điểm điều khiển cuối cùng
 			if (isDrawing)
 			{
-				//Cập nhật điểm điều kiển cuối cùng ứng với pEnd
-				shapes.Last().controlPoints[shapes.Last().controlPoints.Count - 1] = pEnd;
+				Thread thread = new Thread
+				(
+					delegate()
+					{
+						//Cập nhật điểm điều kiển cuối cùng ứng với pEnd
+						shapes.Last().controlPoints[shapes.Last().controlPoints.Count - 1] = pEnd;
 
-				//Xóa tập điểm vẽ, vẽ lại tập điểm mới
-				shapes.Last().rasterPoints.Clear();
+						//Xóa tập điểm vẽ, vẽ lại tập điểm mới
+						shapes.Last().rasterPoints.Clear();
 
-				switch (userType)
-				{
-					case Shape.shapeType.LINE:
-						DrawingAlgorithms.Line(shapes.Last(), pStart, pEnd);
-						break;
-					case Shape.shapeType.CIRCLE:
-						DrawingAlgorithms.Circle(shapes.Last(), pStart, pEnd);
-						break;
-					case Shape.shapeType.RECTANGLE:
-						DrawingAlgorithms.Rectangle(shapes.Last(), pStart, pEnd);
-						break;
-					case Shape.shapeType.ELLIPSE:
-						DrawingAlgorithms.Ellipse(shapes.Last(), pStart, pEnd);
-						break;
-					case Shape.shapeType.TRIANGLE:
-						DrawingAlgorithms.Triangle(shapes.Last(), pStart, pEnd);
-						break;
-					case Shape.shapeType.PENTAGON:
-						DrawingAlgorithms.Pengtagon(shapes.Last(), pStart, pEnd);
-						break;
-					case Shape.shapeType.HEXAGON:
-						DrawingAlgorithms.Hexagon(shapes.Last(), pStart, pEnd);
-						break;
-					case Shape.shapeType.POLYGON:
-						DrawingAlgorithms.Polygon(shapes.Last());
-						break;
-				}
-				isShapesChanged = true;
+						switch (userType)
+						{
+							case Shape.shapeType.LINE:
+								DrawingAlgorithms.Line(shapes.Last(), pStart, pEnd);
+								break;
+							case Shape.shapeType.CIRCLE:
+								DrawingAlgorithms.Circle(shapes.Last(), pStart, pEnd);
+								break;
+							case Shape.shapeType.RECTANGLE:
+								DrawingAlgorithms.Rectangle(shapes.Last(), pStart, pEnd);
+								break;
+							case Shape.shapeType.ELLIPSE:
+								DrawingAlgorithms.Ellipse(shapes.Last(), pStart, pEnd);
+								break;
+							case Shape.shapeType.TRIANGLE:
+								DrawingAlgorithms.Triangle(shapes.Last(), pStart, pEnd);
+								break;
+							case Shape.shapeType.PENTAGON:
+								DrawingAlgorithms.Pengtagon(shapes.Last(), pStart, pEnd);
+								break;
+							case Shape.shapeType.HEXAGON:
+								DrawingAlgorithms.Hexagon(shapes.Last(), pStart, pEnd);
+								break;
+							case Shape.shapeType.POLYGON:
+								DrawingAlgorithms.Polygon(shapes.Last());
+								break;
+						}
+						isShapesChanged = true;
+					}
+				);
+				thread.IsBackground = true;
+				thread.Start();
 			}
 
 			//Nếu đang biến đổi Affine => thực hiện các phép biến đổi lên tập điểm điều khiển
 			else if (isTransforming)
 			{
-				AffineTransform transformer = new AffineTransform();
+				Thread thread = new Thread
+				(
+					delegate()
+					{
+						AffineTransform transformer = new AffineTransform();
 
-				//Nếu đang chọn điểm điều khiển => phép co giãn hình
-				if (choosingControl >= 0)
-				{
-					shapes[choosingShape].controlPoints[choosingControl] = pEnd;
-				}
-				//Ngược lại => phép tịnh tiến hình
-				else if (choosingRaster >= 0)
-				{
-					//Thiết lập phép tịnh tiến
-					transformer.LoadIdentity();
-					transformer.Translate(pEnd.X - pStart.X, pEnd.Y - pStart.Y);
+						//Nếu đang chọn điểm điều khiển => phép co giãn hình
+						if (choosingControl >= 0)
+						{
+							shapes[choosingShape].controlPoints[choosingControl] = pEnd;
+						}
+						//Ngược lại => phép tịnh tiến hình
+						else if (choosingRaster >= 0)
+						{
+							//Thiết lập phép tịnh tiến
+							transformer.LoadIdentity();
+							transformer.Translate(pEnd.X - pStart.X, pEnd.Y - pStart.Y);
 
-					//Biến đổi tập điểm điều khiển
-					for (int i = 0; i < shapes[choosingShape].controlPoints.Count; i++)
-						shapes[choosingShape].controlPoints[i] = transformer.Transform(shapes[choosingShape].controlPoints[i]);
+							//Biến đổi tập điểm điều khiển
+							for (int i = 0; i < shapes[choosingShape].controlPoints.Count; i++)
+								shapes[choosingShape].controlPoints[i] = transformer.Transform(shapes[choosingShape].controlPoints[i]);
 
-					pStart = pEnd;
-				}
+							pStart = pEnd;
+						}
 
-				//Xóa tập điểm vẽ, vẽ lại tập điểm mới
-				shapes[choosingShape].rasterPoints.Clear();
+						//Xóa tập điểm vẽ, vẽ lại tập điểm mới
+						shapes[choosingShape].rasterPoints.Clear();
 
-				Point controlPoint0 = shapes[choosingShape].controlPoints[0];
-				Point controlPoint1 = shapes[choosingShape].controlPoints[1];
+						Point controlPoint0 = shapes[choosingShape].controlPoints[0];
+						Point controlPoint1 = shapes[choosingShape].controlPoints[1];
 
-				switch (shapes[choosingShape].type)
-				{
-					case Shape.shapeType.LINE:
-						DrawingAlgorithms.Line(shapes[choosingShape], controlPoint0, controlPoint1);
-						break;
-					case Shape.shapeType.CIRCLE:
-						DrawingAlgorithms.Circle(shapes[choosingShape], controlPoint0, controlPoint1);
-						break;
-					case Shape.shapeType.RECTANGLE:
-						DrawingAlgorithms.Polygon(shapes[choosingShape]);
-						break;
-					case Shape.shapeType.ELLIPSE:
-						DrawingAlgorithms.Ellipse(shapes[choosingShape], controlPoint0, controlPoint1);
-						break;
-					case Shape.shapeType.TRIANGLE:
-						DrawingAlgorithms.Polygon(shapes[choosingShape]);
-						break;
-					case Shape.shapeType.PENTAGON:
-						DrawingAlgorithms.Polygon(shapes[choosingShape]);
-						break;
-					case Shape.shapeType.HEXAGON:
-						DrawingAlgorithms.Polygon(shapes[choosingShape]);
-						break;
-					case Shape.shapeType.POLYGON:
-						DrawingAlgorithms.Polygon(shapes[choosingShape]);
-						break;
-				}
-				isShapesChanged = true;
+						switch (shapes[choosingShape].type)
+						{
+							case Shape.shapeType.LINE:
+								DrawingAlgorithms.Line(shapes[choosingShape], controlPoint0, controlPoint1);
+								break;
+							case Shape.shapeType.CIRCLE:
+								DrawingAlgorithms.Circle(shapes[choosingShape], controlPoint0, controlPoint1);
+								break;
+							case Shape.shapeType.RECTANGLE:
+								DrawingAlgorithms.Polygon(shapes[choosingShape]);
+								break;
+							case Shape.shapeType.ELLIPSE:
+								DrawingAlgorithms.Ellipse(shapes[choosingShape], controlPoint0, controlPoint1);
+								break;
+							case Shape.shapeType.TRIANGLE:
+								DrawingAlgorithms.Polygon(shapes[choosingShape]);
+								break;
+							case Shape.shapeType.PENTAGON:
+								DrawingAlgorithms.Polygon(shapes[choosingShape]);
+								break;
+							case Shape.shapeType.HEXAGON:
+								DrawingAlgorithms.Polygon(shapes[choosingShape]);
+								break;
+							case Shape.shapeType.POLYGON:
+								DrawingAlgorithms.Polygon(shapes[choosingShape]);
+								break;
+						}
+						isShapesChanged = true;
+					}
+				);
+				thread.IsBackground = true;
+				thread.Start();
 			}
 		}
 
