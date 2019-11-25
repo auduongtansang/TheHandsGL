@@ -207,23 +207,12 @@
 			this.lbUndo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
 			this.lbUndo.AutoSize = true;
 			this.lbUndo.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F);
-			this.lbUndo.Location = new System.Drawing.Point(140, 535);
+			this.lbUndo.Location = new System.Drawing.Point(149, 536);
 			this.lbUndo.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
 			this.lbUndo.Name = "lbUndo";
 			this.lbUndo.Size = new System.Drawing.Size(73, 13);
 			this.lbUndo.TabIndex = 11;
 			this.lbUndo.Text = "Undo: Ctrl + Z";
-			// 
-			// lbMode
-			// 
-			this.lbMode.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-			this.lbMode.AutoSize = true;
-			this.lbMode.Location = new System.Drawing.Point(235, 535);
-			this.lbMode.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
-			this.lbMode.Name = "lbMode";
-			this.lbMode.Size = new System.Drawing.Size(75, 13);
-			this.lbMode.TabIndex = 18;
-			this.lbMode.Text = "Mode: Picking";
 			// 
 			// lbTime
 			// 
@@ -278,6 +267,17 @@
 			this.tbBuildIn.ReadOnly = true;
 			this.tbBuildIn.Size = new System.Drawing.Size(60, 20);
 			this.tbBuildIn.TabIndex = 16;
+			// 
+			// lbMode
+			// 
+			this.lbMode.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+			this.lbMode.AutoSize = true;
+			this.lbMode.Location = new System.Drawing.Point(230, 536);
+			this.lbMode.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
+			this.lbMode.Name = "lbMode";
+			this.lbMode.Size = new System.Drawing.Size(75, 13);
+			this.lbMode.TabIndex = 18;
+			this.lbMode.Text = "Mode: Picking";
 			// 
 			// mainForm
 			// 
@@ -337,4 +337,3 @@
 		private System.Windows.Forms.Label lbMode;
 	}
 }
-
