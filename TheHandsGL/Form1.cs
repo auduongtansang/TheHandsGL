@@ -17,6 +17,8 @@ namespace TheHandsGL
 		bool isPolygonDrawing = false;
 		//Biến đánh dấu đang biến đổi Affine
 		bool isTransforming = false;
+		//Biến đánh dấu đang xoay hình hay co giãn hình, 0 là xoay, 1 là co giãn
+		int rotateOrScale = 0;
 
 		//Màu đang chọn
 		Color userColor = Color.White;
@@ -32,14 +34,16 @@ namespace TheHandsGL
 		//Biến đánh dấu tập hình vẽ bị thay đổi => phải vẽ lại
 		bool isShapesChanged = true;
 
-		//Sai số pixel, dùng trong chức năng chọn lại hình
+		//Sai số pixel bình phương, dùng trong chức năng chọn lại hình
 		const double epsilon = 50.0;
-		//Số thứ tự của hình đang được chọn lại, -1 nghĩa là không chọn gì
+		//Số thứ tự của hình đang được chọn lại, -1 là không chọn gì
 		int choosingShape = -1;
-		//Số thứ tự của điểm vẽ đang được chọn lại
+		//Backup cho hình đang được chọn
+		Shape backupShape;
+		//Số thứ tự của điểm vẽ đang được chọn lại, -1 là không chọn gì
 		int choosingRaster = -1;
-		//Số thứ tự của điểm điều khiển đang được chọn lại
-		int choosingControl = -1;
+		//Số thứ tự của điểm điều khiển đang được chọn lại, -2 là không chọn gì, -1 là chọn điểm xoay và co giãn
+		int choosingControl = -2;
 
 		public mainForm()
 		{
@@ -97,13 +101,13 @@ namespace TheHandsGL
 				if (shapes.Count > 0)
 				{
 					for (int i = 0; i < shapes.Count - 1; i++)
-						shapes[i].draw(gl);
+						shapes[i].Draw(gl);
 
 					//Đo thời gian vẽ hình cuối cùng
 					Stopwatch watch = Stopwatch.StartNew();
-					shapes.Last().draw(gl);
+					shapes.Last().Draw(gl);
 					watch.Stop();
-					tbSelf.Text = watch.ElapsedTicks.ToString() + " ticks";
+					tbTime.Text = watch.ElapsedTicks.ToString() + " ticks";
 				}
 
 				gl.Flush();
@@ -114,13 +118,18 @@ namespace TheHandsGL
 			if (choosingShape >= 0)
 			{
 				gl.PointSize(5.0f);
-				gl.Color(230.0, 230.0, 0);
-
 				gl.Begin(OpenGL.GL_POINTS);
-				for (int i = 0; i < shapes[choosingShape].controlPoints.Count; i++)
-					gl.Vertex(shapes[choosingShape].controlPoints[i].X, gl.RenderContextProvider.Height - shapes[choosingShape].controlPoints[i].Y);
-				gl.End();
 
+					//Điểm điều khiến
+					gl.Color(230.0, 230.0, 0);
+					for (int i = 0; i < shapes[choosingShape].controlPoints.Count; i++)
+						gl.Vertex(shapes[choosingShape].controlPoints[i].X, gl.RenderContextProvider.Height - shapes[choosingShape].controlPoints[i].Y);
+
+					//Điểm xoay và co giãn
+					gl.Color(0, 100.0, 100.0);
+					gl.Vertex(shapes[choosingShape].extraPoint.X, gl.RenderContextProvider.Height - shapes[choosingShape].extraPoint.Y);
+				
+				gl.End();
 				gl.Flush();
 			}
 		}
@@ -143,15 +152,18 @@ namespace TheHandsGL
 							//Nếu một hình nào đó đang được chọn => biến đổi Affine
 							if (choosingShape >= 0)
 							{
-								//Tìm điểm điều khiển gần với tọa độ chuột nhất
+								//Tìm điểm điều khiển hoặc điểm xoay và co giãn gần với tọa độ chuột nhất
 								double minDistance = 999999999999999999999999.0;
-								int closestControl = -1;
+								int closestControl = -2;
+
+								int dx, dy;
+								double distance;
 
 								for (int j = 0; j < shapes[choosingShape].controlPoints.Count; j++)
 								{
-									int dx = shapes[choosingShape].controlPoints[j].X - e.Location.X;
-									int dy = shapes[choosingShape].controlPoints[j].Y - e.Location.Y;
-									double distance = dx * dx + dy * dy;
+									dx = shapes[choosingShape].controlPoints[j].X - e.Location.X;
+									dy = shapes[choosingShape].controlPoints[j].Y - e.Location.Y;
+									distance = dx * dx + dy * dy;
 
 									if (distance < minDistance)
 									{
@@ -160,7 +172,17 @@ namespace TheHandsGL
 									}
 								}
 
-								//Nếu khoảng cách nhỏ nhất nhỏ hơn epsilon => chọn điểm điều khiển này
+								dx = shapes[choosingShape].extraPoint.X - e.Location.X;
+								dy = shapes[choosingShape].extraPoint.Y - e.Location.Y;
+								distance = dx * dx + dy * dy;
+
+								if (distance < minDistance)
+								{
+									minDistance = distance;
+									closestControl = -1;
+								}
+
+								//Nếu khoảng cách nhỏ nhất nhỏ hơn epsilon => chọn điểm này
 								if (minDistance <= epsilon)
 								{
 									choosingControl = closestControl;
@@ -169,7 +191,8 @@ namespace TheHandsGL
 								}
 
 								//Ngược lại => hủy chọn hình và chọn lại hình khác
-								choosingShape = choosingControl = choosingRaster = -1;
+								choosingShape = choosingRaster = -1;
+								choosingControl = -2;
 							}
 
 							//Nếu không hình nào đang được chọn => chọn lại hình
@@ -189,6 +212,7 @@ namespace TheHandsGL
 										if (distance < minDistance)
 										{
 											choosingShape = i;
+											backupShape = shapes[i].Clone();
 											minDistance = distance;
 											closestRaster = j;
 										}
@@ -204,7 +228,8 @@ namespace TheHandsGL
 								}
 
 								//Ngược lại => không chọn hình nào hết
-								choosingShape = choosingControl = choosingRaster = -1;
+								choosingShape = choosingRaster = -1;
+								choosingControl = -2;
 								isShapesChanged = true;
 								return;
 							}
@@ -218,7 +243,7 @@ namespace TheHandsGL
 				//Nếu userType khác NONE => vẽ hình mới
 				choosingShape = -1;
 				isDrawing = true;
-				tbSelf.Text = "";
+				tbTime.Text = "";
 
 				//Nếu userType khác POLYGON => tạo hình vẽ mới, thêm vào danh sách
 				if (userType != Shape.shapeType.POLYGON)
@@ -259,7 +284,11 @@ namespace TheHandsGL
 			//Sự kiện "nhả chuột", kết thúc quá trình vẽ
 			if (userType != Shape.shapeType.POLYGON)
 				isDrawing = false;
-			isTransforming = false;
+			if (isTransforming == true)
+			{
+				backupShape = shapes[choosingShape].Clone();
+				isTransforming = false;
+			}
 		}
 
 		private void drawBoard_MouseMove(object sender, MouseEventArgs e)
@@ -323,8 +352,54 @@ namespace TheHandsGL
 					{
 						AffineTransform transformer = new AffineTransform();
 
-						//Nếu đang chọn điểm điều khiển => phép co giãn hình
-						if (choosingControl >= 0)
+						//Nếu đang chọn điểm xoay và co giãn => phép xoay hình hoặc co giãn hình
+						if (choosingControl == -1)
+						{
+							//Phép xoay hình
+							if (rotateOrScale == 0)
+							{
+								//Tính góc xoay
+								Tuple<double, double> vecA = new Tuple<double, double>(backupShape.extraPoint.X - backupShape.center.Item1, backupShape.extraPoint.Y - backupShape.center.Item2);
+								Tuple<double, double> vecB = new Tuple<double, double>(pEnd.X - backupShape.center.Item1, pEnd.Y - backupShape.center.Item2);
+								double lenA = Math.Sqrt(vecA.Item1 * vecA.Item1 + vecA.Item2 * vecA.Item2);
+								double lenB = Math.Sqrt(vecB.Item1 * vecB.Item1 + vecB.Item2 * vecB.Item2);
+								double phi = Math.Acos((vecA.Item1 * vecB.Item1 + vecA.Item2 * vecB.Item2) / (lenA * lenB));
+								if (vecA.Item1 * vecB.Item2 - vecA.Item2 * vecB.Item1 < 0)
+									phi = -phi;
+
+								//Thiết lập phép xoay
+								transformer.LoadIdentity();
+								transformer.Translate(-backupShape.center.Item1, -backupShape.center.Item2);
+								transformer.Rotate(phi);
+								transformer.Translate(backupShape.center.Item1, backupShape.center.Item2);
+
+								//Biến đổi tập điểm điều khiển
+								for (int i = 0; i < shapes[choosingShape].controlPoints.Count; i++)
+									shapes[choosingShape].controlPoints[i] = transformer.Transform(backupShape.controlPoints[i]);
+							}
+							//Phép co giãn hình
+							else if (rotateOrScale == 1)
+							{
+								//Tính hệ số co giãn
+								Tuple<double, double> vecA = new Tuple<double, double>(backupShape.extraPoint.X - backupShape.center.Item1, backupShape.extraPoint.Y - backupShape.center.Item2);
+								Tuple<double, double> vecB = new Tuple<double, double>(pEnd.X - backupShape.center.Item1, pEnd.Y - backupShape.center.Item2);
+								double sx = vecB.Item1 / vecA.Item1;
+								double sy = vecB.Item2 / vecA.Item2;
+								double s = Math.Min(sx, sy);
+
+								//Thiết lập phép co giãn
+								transformer.LoadIdentity();
+								transformer.Translate(-backupShape.center.Item1, -backupShape.center.Item2);
+								transformer.Scale(s, s);
+								transformer.Translate(backupShape.center.Item1, backupShape.center.Item2);
+
+								//Biến đổi tập điểm điều khiển
+								for (int i = 0; i < shapes[choosingShape].controlPoints.Count; i++)
+									shapes[choosingShape].controlPoints[i] = transformer.Transform(backupShape.controlPoints[i]);
+							}
+						}
+						//Nếu đang chọn điểm điều khiển => thay đổi tọa độ điểm điều khiển
+						else if (choosingControl >= 0)
 						{
 							shapes[choosingShape].controlPoints[choosingControl] = pEnd;
 						}
@@ -337,9 +412,7 @@ namespace TheHandsGL
 
 							//Biến đổi tập điểm điều khiển
 							for (int i = 0; i < shapes[choosingShape].controlPoints.Count; i++)
-								shapes[choosingShape].controlPoints[i] = transformer.Transform(shapes[choosingShape].controlPoints[i]);
-
-							pStart = pEnd;
+								shapes[choosingShape].controlPoints[i] = transformer.Transform(backupShape.controlPoints[i]);
 						}
 
 						//Xóa tập điểm vẽ, vẽ lại tập điểm mới
@@ -358,9 +431,6 @@ namespace TheHandsGL
 								break;
 							case Shape.shapeType.RECTANGLE:
 								DrawingAlgorithms.Polygon(shapes[choosingShape]);
-								break;
-							case Shape.shapeType.ELLIPSE:
-								DrawingAlgorithms.Ellipse(shapes[choosingShape], controlPoint0, controlPoint1);
 								break;
 							case Shape.shapeType.TRIANGLE:
 								DrawingAlgorithms.Polygon(shapes[choosingShape]);
@@ -388,6 +458,7 @@ namespace TheHandsGL
 			//Sự kiện "chọn vẽ đường thẳng"
 			userType = Shape.shapeType.LINE;
 			lbMode.Text = "Mode: Line (ESC to cancel)";
+			btnRotateOrScale.Enabled = false;
 		}
 
 		private void btnCircle_Click(object sender, EventArgs e)
@@ -395,6 +466,7 @@ namespace TheHandsGL
 			//Sự kiện "chọn vẽ đường tròn"
 			userType = Shape.shapeType.CIRCLE;
 			lbMode.Text = "Mode: Circle (ESC to cancel)";
+			btnRotateOrScale.Enabled = false;
 		}
 
 		private void btnRectangle_Click(object sender, EventArgs e)
@@ -402,6 +474,7 @@ namespace TheHandsGL
 			//Sự kiện "chọn vẽ hình chữ nhật"
 			userType = Shape.shapeType.RECTANGLE;
 			lbMode.Text = "Mode: Rectangle (ESC to cancel)";
+			btnRotateOrScale.Enabled = false;
 		}
 
 		private void btnEllipse_Click(object sender, EventArgs e)
@@ -409,6 +482,7 @@ namespace TheHandsGL
 			//Sự kiện "chọn vẽ ellipse"
 			userType = Shape.shapeType.ELLIPSE;
 			lbMode.Text = "Mode: Ellipse (ESC to cancel)";
+			btnRotateOrScale.Enabled = false;
 		}
 
 		private void btnTriangle_Click(object sender, EventArgs e)
@@ -416,6 +490,7 @@ namespace TheHandsGL
 			//Sự kiện "chọn vẽ tam giác đều"
 			userType = Shape.shapeType.TRIANGLE;
 			lbMode.Text = "Mode: Triangle (ESC to cancel)";
+			btnRotateOrScale.Enabled = false;
 		}
 
 		private void btnPentagon_Click(object sender, EventArgs e)
@@ -423,6 +498,7 @@ namespace TheHandsGL
 			//Sự kiện "chọn vẽ ngũ giác đều"
 			userType = Shape.shapeType.PENTAGON;
 			lbMode.Text = "Mode: Pentagon (ESC to cancel)";
+			btnRotateOrScale.Enabled = false;
 		}
 
 		private void btnHexagon_Click(object sender, EventArgs e)
@@ -430,6 +506,7 @@ namespace TheHandsGL
 			//Sự kiện "chọn vẽ lục giác đều"
 			userType = Shape.shapeType.HEXAGON;
 			lbMode.Text = "Mode: Hexagon (ESC to cancel)";
+			btnRotateOrScale.Enabled = false;
 		}
 
 		private void btnPolygon_Click(object sender, EventArgs e)
@@ -437,6 +514,7 @@ namespace TheHandsGL
 			//Sự kiện "chọn vẽ đa giác"
 			userType = Shape.shapeType.POLYGON;
 			lbMode.Text = "Mode: Polygon (ESC to cancel)";
+			btnRotateOrScale.Enabled = false;
 		}
 
 		private void btnClear_Click(object sender, EventArgs e)
@@ -446,6 +524,14 @@ namespace TheHandsGL
 			isDrawing = isPolygonDrawing = false;
 			choosingShape = choosingControl = choosingRaster = -1;
 			isShapesChanged = true;
+			btnRotateOrScale.Enabled = false;
+		}
+
+		private void btnColor_Click(object sender, EventArgs e)
+		{
+			//Sự kiện "chọn màu"
+			if (colorDialog.ShowDialog() == DialogResult.OK)
+				userColor = colorDialog.Color;
 		}
 
 		private void btnWidth_Click(object sender, EventArgs e)
@@ -457,11 +543,18 @@ namespace TheHandsGL
 			btnWidth.Text = "Width: " + userWidth.ToString("0.0");
 		}
 
-		private void btnColor_Click(object sender, EventArgs e)
+		private void btnRotateOrScale_Click(object sender, EventArgs e)
 		{
-			//Sự kiện "chọn màu"
-			if (colorDialog.ShowDialog() == DialogResult.OK)
-				userColor = colorDialog.Color;
+			if (btnRotateOrScale.Text == "Rotate")
+			{
+				btnRotateOrScale.Text = "Scale";
+				rotateOrScale = 1;
+			}
+			else
+			{
+				btnRotateOrScale.Text = "Rotate";
+				rotateOrScale = 0;
+			}
 		}
 
 		private void drawBoard_KeyDown(object sender, KeyEventArgs e)
@@ -472,7 +565,8 @@ namespace TheHandsGL
 				//Ctrl + Z => undo
 				shapes.RemoveAt(shapes.Count - 1);
 				isDrawing = isPolygonDrawing = false;
-				choosingShape = choosingControl = choosingRaster = -1;
+				choosingShape = choosingRaster = -1;
+				choosingControl = -2;
 				isShapesChanged = true;
 			}
 			else if (e.KeyCode == Keys.Escape)
@@ -482,7 +576,8 @@ namespace TheHandsGL
 				{
 					shapes.RemoveAt(shapes.Count - 1);
 					isDrawing = isPolygonDrawing = false;
-					choosingShape = choosingControl = choosingRaster = -1;
+					choosingShape = choosingRaster = -1;
+					choosingControl = -2;
 					isShapesChanged = true;
 				}
 				else
@@ -490,8 +585,10 @@ namespace TheHandsGL
 					lbMode.Text = "Mode: Picking";
 					userType = Shape.shapeType.NONE;
 					isDrawing = isPolygonDrawing = false;
-					choosingShape = choosingControl = choosingRaster = -1;
+					choosingShape = choosingRaster = -1;
+					choosingControl = -2;
 					isShapesChanged = true;
+					btnRotateOrScale.Enabled = true;
 				}
 			}
 		}
@@ -513,6 +610,10 @@ namespace TheHandsGL
 		public List<Point> controlPoints;
 		//Tập điểm vẽ
 		public List<Point> rasterPoints;
+		//Điểm xoay và co giãn
+		public Point extraPoint;
+		//Tâm
+		public Tuple<double, double> center;
 
 		public Shape(Color userColor, float userWidth, shapeType userType)
 		{
@@ -523,10 +624,13 @@ namespace TheHandsGL
 
 			rasterPoints = new List<Point>();
 			controlPoints = new List<Point>();
+			extraPoint = new Point(-1, -1);
 		}
 
-		public void draw(OpenGL gl)
+		public void Draw(OpenGL gl)
 		{
+			//Hàm vẽ từng pixel
+
 			//Set màu nét vẽ
 			gl.Color(color.R, color.G, color.B, color.A);
 			//Set độ dày nét vẽ
@@ -534,9 +638,24 @@ namespace TheHandsGL
 
 			//Liệt kê tập điểm vẽ cho OpenGL
 			gl.Begin(OpenGL.GL_POINTS);
-			for (int i = 0; i < rasterPoints.Count; i++)
-				gl.Vertex(rasterPoints[i].X, gl.RenderContextProvider.Height - rasterPoints[i].Y);
+				for (int i = 0; i < rasterPoints.Count; i++)
+					gl.Vertex(rasterPoints[i].X, gl.RenderContextProvider.Height - rasterPoints[i].Y);
 			gl.End();
+		}
+
+		public Shape Clone()
+		{
+			//Hàm sao chép hình
+
+			Shape newShape = new Shape(color, width, type);
+			for (int i = 0; i < controlPoints.Count; i++)
+				newShape.controlPoints.Add(new Point(controlPoints[i].X, controlPoints[i].Y));
+			for (int i = 0; i < rasterPoints.Count; i++)
+				newShape.rasterPoints.Add(new Point(rasterPoints[i].X, rasterPoints[i].Y));
+			newShape.extraPoint = new Point(extraPoint.X, extraPoint.Y);
+			newShape.center = new Tuple<double, double>(center.Item1, center.Item2);
+
+			return newShape;
 		}
 	}
 
@@ -625,6 +744,24 @@ namespace TheHandsGL
 			for (int i = 0; i < points.Count; i++)
 				newShape.rasterPoints.Add(new Point(points[i].X + move.X, points[i].Y + move.Y));
 
+			//Tạo tâm
+			double centerX = 0, centerY = 0;
+			for (int i = 0; i < newShape.controlPoints.Count; i++)
+			{
+				centerX += newShape.controlPoints[i].X;
+				centerY += newShape.controlPoints[i].Y;
+			}
+			centerX /= newShape.controlPoints.Count;
+			centerY /= newShape.controlPoints.Count;
+			newShape.center = new Tuple<double, double>(centerX, centerY);
+
+			//Tạo điểm xoay và co giãn
+			double dx = newShape.controlPoints[1].X - centerX, dy = newShape.controlPoints[1].Y - centerY;
+			double len = Math.Sqrt(dx * dx + dy * dy);
+			AffineTransform transformer = new AffineTransform();
+			transformer.Translate(30 * dx / len, 30 * dy / len);
+			newShape.extraPoint = transformer.Transform(newShape.controlPoints[1]);
+
 			points.Clear();
 		}
 
@@ -706,6 +843,25 @@ namespace TheHandsGL
 				p = partsOfCircle[i];
 				newShape.rasterPoints.Add(new Point(-p.X + pCenter.X, p.Y + pCenter.Y));
 			}
+
+			//Tạo tâm
+			double centerX = 0, centerY = 0;
+			for (i = 0; i < newShape.controlPoints.Count; i++)
+			{
+				centerX += newShape.controlPoints[i].X;
+				centerY += newShape.controlPoints[i].Y;
+			}
+			centerX /= newShape.controlPoints.Count;
+			centerY /= newShape.controlPoints.Count;
+			newShape.center = new Tuple<double, double>(centerX, centerY);
+
+			//Tạo điểm xoay và co giãn
+			double dx = pEnd.X - centerX, dy = pEnd.Y - centerY;
+			double len = Math.Sqrt(dx * dx + dy * dy);
+			AffineTransform transformer = new AffineTransform();
+			transformer.Translate(30 * dx / len, 30 * dy / len);
+			newShape.extraPoint = transformer.Transform(pEnd);
+
 			partsOfCircle.Clear();
 		}
 
@@ -904,6 +1060,24 @@ namespace TheHandsGL
 				oneFourth.Add(new Point(-p.X, p.Y));
 				newShape.rasterPoints.Add(new Point(-p.X + pCenter.X, p.Y + pCenter.Y));
 			}
+
+			//Tạo tâm
+			double centerX = 0, centerY = 0;
+			for (int i = 0; i < newShape.controlPoints.Count; i++)
+			{
+				centerX += newShape.controlPoints[i].X;
+				centerY += newShape.controlPoints[i].Y;
+			}
+			centerX /= newShape.controlPoints.Count;
+			centerY /= newShape.controlPoints.Count;
+			newShape.center = new Tuple<double, double>(centerX, centerY);
+
+			//Tạo điểm xoay và co giãn
+			double dx = pEnd.X - centerX, dy = pEnd.Y - centerY;
+			double len = Math.Sqrt(dx * dx + dy * dy);
+			AffineTransform transformer = new AffineTransform();
+			transformer.Translate(25 * dx / len, 25 * dy / len);
+			newShape.extraPoint = transformer.Transform(pEnd);
 		}
 
 		public static void Hexagon(Shape newShape, Point pStart, Point pEnd)
@@ -918,6 +1092,24 @@ namespace TheHandsGL
 				Line(newShape, newShape.controlPoints[i], newShape.controlPoints[i + 1]);
 			//Nối điểm cuối với điểm đầu
 			Line(newShape, newShape.controlPoints.Last(), newShape.controlPoints[0]);
+
+			//Tạo tâm
+			double centerX = 0, centerY = 0;
+			for (int i = 0; i < newShape.controlPoints.Count; i++)
+			{
+				centerX += newShape.controlPoints[i].X;
+				centerY += newShape.controlPoints[i].Y;
+			}
+			centerX /= newShape.controlPoints.Count;
+			centerY /= newShape.controlPoints.Count;
+			newShape.center = new Tuple<double, double>(centerX, centerY);
+
+			//Tạo điểm xoay và co giãn
+			double dx = newShape.controlPoints[1].X - centerX, dy = newShape.controlPoints[1].Y - centerY;
+			double len = Math.Sqrt(dx * dx + dy * dy);
+			AffineTransform transformer = new AffineTransform();
+			transformer.Translate(25 * dx / len, 25 * dy / len);
+			newShape.extraPoint = transformer.Transform(newShape.controlPoints[1]);
 		}
 	}
 
