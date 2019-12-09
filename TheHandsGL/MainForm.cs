@@ -71,16 +71,16 @@ namespace TheHandsGL
 			//Lấy đối tượng OpenGL
 			OpenGL gl = drawBoard.OpenGL;
 
-			//Chọn chế độ chiếu
-			gl.MatrixMode(OpenGL.GL_PROJECTION);
-			//Chọn ma trận chiếu là ma trận đơn vị
-			gl.LoadIdentity();
 			//Set viewport theo kích thước mới
 			gl.Viewport(0, 0, drawBoard.Width, drawBoard.Height);
 
-			//Chiếu lên viewport này
+			//Chọn chế độ chiếu
+			gl.MatrixMode(OpenGL.GL_PROJECTION);
+			//Chiếu theo kích thước mới
+			gl.LoadIdentity();
 			gl.Ortho2D(0, drawBoard.Width, 0, drawBoard.Height);
-			//Bật biến đánh dấu để vẽ lại
+
+			//Vẽ lại hình
 			isShapesChanged = true;
 		}
 
@@ -202,17 +202,19 @@ namespace TheHandsGL
 								double minDistance = 999999999999999999999999.0;
 								int closestRaster = -1;
 
+								int dx, dy;
+								double distance;
+
 								for (int i = 0; i < shapes.Count; i++)
 									for (int j = 0; j < shapes[i].rasterPoints.Count; j++)
 									{
-										int dx = shapes[i].rasterPoints[j].X - e.Location.X;
-										int dy = shapes[i].rasterPoints[j].Y - e.Location.Y;
-										double distance = dx * dx + dy * dy;
+										dx = shapes[i].rasterPoints[j].X - e.Location.X;
+										dy = shapes[i].rasterPoints[j].Y - e.Location.Y;
+										distance = dx * dx + dy * dy;
 
 										if (distance < minDistance)
 										{
 											choosingShape = i;
-											backupShape = shapes[i].Clone();
 											minDistance = distance;
 											closestRaster = j;
 										}
@@ -222,6 +224,7 @@ namespace TheHandsGL
 								if (minDistance <= epsilon)
 								{
 									choosingRaster = closestRaster;
+									backupShape = shapes[choosingShape].Clone();
 									isTransforming = true;
 									isShapesChanged = true;
 									return;
@@ -252,9 +255,8 @@ namespace TheHandsGL
 					shapes.Last().controlPoints.Add(pStart);
 					shapes.Last().controlPoints.Add(pEnd);
 				}
-
 				//Nếu userType là POLYGON => xét 2 trường hợp bên dưới
-				if (userType == Shape.shapeType.POLYGON)
+				else if (userType == Shape.shapeType.POLYGON)
 				{
 					//Nếu bắt đầu vẽ => tạo hình vẽ mới
 					if (isPolygonDrawing == false)
@@ -264,7 +266,7 @@ namespace TheHandsGL
 						shapes.Last().controlPoints.Add(pStart);
 						shapes.Last().controlPoints.Add(pEnd);
 					}
-					//Nếu đang vẽ => không tạo ra hình mới, mà thêm điểm chuột vào tập điểm điều khiển
+					//Nếu đang vẽ => không tạo ra hình mới, mà thêm tọa độ chuột vào tập điểm điều khiển
 					else
 					{
 						shapes.Last().controlPoints.Add(pEnd);
@@ -296,7 +298,7 @@ namespace TheHandsGL
 			//Sự kiện "kéo chuột", xảy ra liên tục khi người dùng nhấn giữ chuột và kéo đi
 			pEnd = e.Location;
 
-			//Nếu đang vẽ => chỉ cập nhật điểm điều khiển cuối cùng
+			//Nếu đang vẽ => liên tục vẽ lại theo tọa độ pEnd mới
 			if (isDrawing)
 			{
 				Thread thread = new Thread
@@ -336,6 +338,7 @@ namespace TheHandsGL
 								DrawingAlgorithms.Polygon(shapes.Last());
 								break;
 						}
+						//Vẽ lại hình
 						isShapesChanged = true;
 					}
 				);
@@ -403,7 +406,7 @@ namespace TheHandsGL
 						{
 							shapes[choosingShape].controlPoints[choosingControl] = pEnd;
 						}
-						//Ngược lại => phép tịnh tiến hình
+						//Nếu đang chọn một điểm vẽ của hình => phép tịnh tiến hình
 						else if (choosingRaster >= 0)
 						{
 							//Thiết lập phép tịnh tiến
@@ -432,6 +435,9 @@ namespace TheHandsGL
 							case Shape.shapeType.RECTANGLE:
 								DrawingAlgorithms.Polygon(shapes[choosingShape]);
 								break;
+							case Shape.shapeType.ELLIPSE:
+								DrawingAlgorithms.Ellipse(shapes[choosingShape], controlPoint0, controlPoint1);
+								break;
 							case Shape.shapeType.TRIANGLE:
 								DrawingAlgorithms.Polygon(shapes[choosingShape]);
 								break;
@@ -445,6 +451,7 @@ namespace TheHandsGL
 								DrawingAlgorithms.Polygon(shapes[choosingShape]);
 								break;
 						}
+						//Vẽ lại hình
 						isShapesChanged = true;
 					}
 				);

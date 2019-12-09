@@ -230,88 +230,6 @@ namespace TheHandsGL
 			Polygon(newShape);
 		}
 
-		public static void Triangle(Shape newShape, Point pStart, Point pEnd)
-		{
-			//Vẽ tam giác đều bằng 2 điểm chuột pStart và pEnd
-
-			//Tịnh tiến sao cho pStart trùng với (0, 0), vector tịnh tiến là move
-			Point move = new Point(pStart.X, pStart.Y);
-			(pStart.X, pStart.Y) = (0, 0);
-			(pEnd.X, pEnd.Y) = (pEnd.X - move.X, pEnd.Y - move.Y);
-
-			//Quay pEnd quanh tâm 60 độ để được điểm mới
-			Point p = new Point();
-			double cosPhi = Math.Cos(60 * Math.PI / 180);
-			double sinPhi = Math.Sin(60 * Math.PI / 180);
-
-			p.X = (int)(pEnd.X * cosPhi - pEnd.Y * sinPhi);
-			p.Y = (int)(pEnd.X * sinPhi + pEnd.Y * cosPhi);
-
-			//Tịnh tiến về như cũ
-			(pStart.X, pStart.Y) = (pStart.X + move.X, pStart.Y + move.Y);
-			(pEnd.X, pEnd.Y) = (pEnd.X + move.X, pEnd.Y + move.Y);
-			(p.X, p.Y) = (p.X + move.X, p.Y + move.Y);
-
-			//Tập 3 điểm điều khiển
-			newShape.controlPoints.Clear();
-			newShape.controlPoints.Add(pStart);
-			newShape.controlPoints.Add(pEnd);
-			newShape.controlPoints.Add(p);
-
-			//Vẽ hình bằng hàm vẽ đa giác
-			Polygon(newShape);
-		}
-
-		public static void Pengtagon(Shape newShape, Point pStart, Point pEnd)
-		{
-			//Vẽ ngũ giác đều bằng 2 điểm chuột pStart và pEnd
-
-			//Tịnh tiến sao cho pStart trùng với (0, 0)
-			//Vector tịnh tiến là move
-			Point move = new Point(pStart.X, pStart.Y);
-			(pStart.X, pStart.Y) = (0, 0);
-			(pEnd.X, pEnd.Y) = (pEnd.X - move.X, pEnd.Y - move.Y);
-
-			//Quay pEnd quanh tâm 72 độ để được điểm mới
-			Point p1 = new Point();
-			Point p2 = new Point();
-			Point p3 = new Point();
-			Point p4 = new Point();
-			double cosPhi = Math.Cos(72 * Math.PI / 180);
-			double sinPhi = Math.Sin(72 * Math.PI / 180);
-
-			p1.X = (int)(pEnd.X * cosPhi - pEnd.Y * sinPhi);
-			p1.Y = (int)(pEnd.X * sinPhi + pEnd.Y * cosPhi);
-
-			p2.X = (int)(p1.X * cosPhi - p1.Y * sinPhi);
-			p2.Y = (int)(p1.X * sinPhi + p1.Y * cosPhi);
-
-			p3.X = (int)(p2.X * cosPhi - p2.Y * sinPhi);
-			p3.Y = (int)(p2.X * sinPhi + p2.Y * cosPhi);
-
-			p4.X = (int)(p3.X * cosPhi - p3.Y * sinPhi);
-			p4.Y = (int)(p3.X * sinPhi + p3.Y * cosPhi);
-
-			//Tịnh tiến về như cũ
-			(pStart.X, pStart.Y) = (pStart.X + move.X, pStart.Y + move.Y);
-			(pEnd.X, pEnd.Y) = (pEnd.X + move.X, pEnd.Y + move.Y);
-			(p1.X, p1.Y) = (p1.X + move.X, p1.Y + move.Y);
-			(p2.X, p2.Y) = (p2.X + move.X, p2.Y + move.Y);
-			(p3.X, p3.Y) = (p3.X + move.X, p3.Y + move.Y);
-			(p4.X, p4.Y) = (p4.X + move.X, p4.Y + move.Y);
-
-			//Tập 5 điểm điều khiển
-			newShape.controlPoints.Clear();
-			newShape.controlPoints.Add(pEnd);
-			newShape.controlPoints.Add(p1);
-			newShape.controlPoints.Add(p2);
-			newShape.controlPoints.Add(p3);
-			newShape.controlPoints.Add(p4);
-
-			//Vẽ hình bằng hàm vẽ đa giác
-			Polygon(newShape);
-		}
-
 		public static void Ellipse(Shape newShape, Point pStart, Point pEnd)
 		{
 			//Tính tâm ellipse
@@ -424,6 +342,55 @@ namespace TheHandsGL
 			AffineTransform transformer = new AffineTransform();
 			transformer.Translate(25 * dx / len, 25 * dy / len);
 			newShape.extraPoint = transformer.Transform(pEnd);
+		}
+
+		public static void Triangle(Shape newShape, Point pStart, Point pEnd)
+		{
+			//Vẽ tam giác đều bằng 2 điểm chuột pStart và pEnd
+
+			//Cứ xoay pEnd quanh pStart 60 độ sẽ được một điểm điều khiển mới
+			AffineTransform transformer = new AffineTransform();
+			transformer.Translate(-pStart.X, -pStart.Y);
+			transformer.Rotate(60 * Math.PI / 180);
+			transformer.Translate(pStart.X, pStart.Y);
+			
+			Point p = transformer.Transform(pEnd);
+
+			//Tập 3 điểm điều khiển
+			newShape.controlPoints.Clear();
+			newShape.controlPoints.Add(pStart);
+			newShape.controlPoints.Add(pEnd);
+			newShape.controlPoints.Add(p);
+
+			//Vẽ hình bằng hàm vẽ đa giác
+			Polygon(newShape);
+		}
+
+		public static void Pengtagon(Shape newShape, Point pStart, Point pEnd)
+		{
+			//Vẽ ngũ giác đều bằng 2 điểm chuột pStart và pEnd
+
+			//Cứ xoay pEnd quanh pStart 72 độ sẽ được một điểm điều khiển mới
+			AffineTransform transformer = new AffineTransform();
+			transformer.Translate(-pStart.X, -pStart.Y);
+			transformer.Rotate(72 * Math.PI / 180);
+			transformer.Translate(pStart.X, pStart.Y);
+
+			Point p1 = transformer.Transform(pEnd);
+			Point p2 = transformer.Transform(p1);
+			Point p3 = transformer.Transform(p2);
+			Point p4 = transformer.Transform(p3);
+
+			//Tập 5 điểm điều khiển
+			newShape.controlPoints.Clear();
+			newShape.controlPoints.Add(pEnd);
+			newShape.controlPoints.Add(p1);
+			newShape.controlPoints.Add(p2);
+			newShape.controlPoints.Add(p3);
+			newShape.controlPoints.Add(p4);
+
+			//Vẽ hình bằng hàm vẽ đa giác
+			Polygon(newShape);
 		}
 
 		public static void Hexagon(Shape newShape, Point pStart, Point pEnd)
