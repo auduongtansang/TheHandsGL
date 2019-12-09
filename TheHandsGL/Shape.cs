@@ -5,15 +5,15 @@ using System.Drawing;
 
 namespace TheHandsGL
 {
-	public class Shape
+	class Shape
 	{
 		//Lớp "Shape", đối tượng hình vẽ
 		public enum shapeType { NONE, LINE, CIRCLE, RECTANGLE, ELLIPSE, TRIANGLE, PENTAGON, HEXAGON, POLYGON }
 
 		//Màu nét vẽ
-		public Color color;
+		Color color;
 		//Độ dày nét vẽ
-		public float width;
+		float width;
 		//Loại hình vẽ
 		public shapeType type;
 
@@ -49,8 +49,8 @@ namespace TheHandsGL
 
 			//Liệt kê tập điểm vẽ cho OpenGL
 			gl.Begin(OpenGL.GL_POINTS);
-			for (int i = 0; i < rasterPoints.Count; i++)
-				gl.Vertex(rasterPoints[i].X, gl.RenderContextProvider.Height - rasterPoints[i].Y);
+				for (int i = 0; i < rasterPoints.Count; i++)
+					gl.Vertex(rasterPoints[i].X, gl.RenderContextProvider.Height - rasterPoints[i].Y);
 			gl.End();
 		}
 

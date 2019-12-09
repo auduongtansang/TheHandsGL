@@ -4,12 +4,12 @@ using System.Drawing;
 
 namespace TheHandsGL
 {
-	public class AffineTransform
+	class AffineTransform
 	{
 		//Lớp "AffineTransform", định nghĩa các phép biến đổi Affine 2D (3x3)
 
 		//Ma trận biến đổi Affine
-		public List<double> transformMatrix;
+		List<double> transformMatrix;
 
 		public AffineTransform()
 		{
