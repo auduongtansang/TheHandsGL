@@ -395,8 +395,32 @@ namespace TheHandsGL
 
 		public static void Hexagon(Shape newShape, Point pStart, Point pEnd)
 		{
-			//Code ở đây
-		}
+            //Vẽ ngũ giác đều bằng 2 điểm chuột pStart và pEnd
+
+            // Tìm ma trận xoay một góc 60 độ với tâm quay là điểm bắt đầu.
+            AffineTransform transformer = new AffineTransform();
+            transformer.Translate(-pStart.X, -pStart.Y);
+            transformer.Rotate(60 * Math.PI / 180);
+            transformer.Translate(pStart.X, pStart.Y);
+
+            Point p1 = transformer.Transform(pEnd);
+            Point p2 = transformer.Transform(p1);
+            Point p3 = transformer.Transform(p2);
+            Point p4 = transformer.Transform(p3);
+            Point p5 = transformer.Transform(p4);
+
+            //Tập 6 điểm điều khiển
+            newShape.controlPoints.Clear();
+            newShape.controlPoints.Add(pEnd);
+            newShape.controlPoints.Add(p1);
+            newShape.controlPoints.Add(p2);
+            newShape.controlPoints.Add(p3);
+            newShape.controlPoints.Add(p4);
+            newShape.controlPoints.Add(p5);
+
+            //Vẽ hình bằng hàm vẽ đa giác
+            Polygon(newShape);
+        }
 
 		public static void Polygon(Shape newShape)
 		{
