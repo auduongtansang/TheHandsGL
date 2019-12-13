@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="AffineTransform.cs" />
     <Compile Include="DrawingAlgorithms.cs" />
+    <Compile Include="FloodFiller.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

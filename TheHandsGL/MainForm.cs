@@ -101,13 +101,21 @@ namespace TheHandsGL
 				if (shapes.Count > 0)
 				{
 					for (int i = 0; i < shapes.Count - 1; i++)
+					{
 						shapes[i].Draw(gl);
+
+						if (shapes[i].fillColor != Color.Black)
+							shapes[i].Fill(gl);
+					}
 
 					//Đo thời gian vẽ hình cuối cùng
 					Stopwatch watch = Stopwatch.StartNew();
 					shapes.Last().Draw(gl);
 					watch.Stop();
 					tbTime.Text = watch.ElapsedTicks.ToString() + " ticks";
+
+					if (shapes.Last().fillColor != Color.Black)
+						shapes.Last().Fill(gl);
 				}
 
 				gl.Flush();
@@ -288,6 +296,17 @@ namespace TheHandsGL
 				isDrawing = false;
 			if (isTransforming == true)
 			{
+				//Nếu hình có tô màu => tô màu lại
+				if (shapes[choosingShape].fillColor != Color.Black)
+				{
+					Thread thread = new Thread
+					(
+						() => FloodFiller.Fill(shapes[choosingShape], shapes[choosingShape].fillColor, ref isShapesChanged)
+					);
+					thread.IsBackground = true;
+					thread.Start();
+				}
+
 				backupShape = shapes[choosingShape].Clone();
 				isTransforming = false;
 			}
@@ -353,6 +372,13 @@ namespace TheHandsGL
 				(
 					delegate()
 					{
+						//Tắt tô màu để biến đổi Affine
+						if (shapes[choosingShape].isColored == true)
+						{
+							shapes[choosingShape].isColored = false;
+							shapes[choosingShape].fillPoints.Clear();
+						}
+
 						AffineTransform transformer = new AffineTransform();
 
 						//Nếu đang chọn điểm xoay và co giãn => phép xoay hình hoặc co giãn hình
@@ -451,6 +477,7 @@ namespace TheHandsGL
 								DrawingAlgorithms.Polygon(shapes[choosingShape]);
 								break;
 						}
+
 						//Vẽ lại hình
 						isShapesChanged = true;
 					}
@@ -561,6 +588,19 @@ namespace TheHandsGL
 			{
 				btnRotateOrScale.Text = "Rotate";
 				rotateOrScale = 0;
+			}
+		}
+
+		private void btnFlood_Click(object sender, EventArgs e)
+		{
+			if (choosingShape >= 0 && shapes[choosingShape].fillColor != userColor)
+			{
+				Thread thread = new Thread
+				(
+					() => FloodFiller.Fill(shapes[choosingShape], userColor, ref isShapesChanged)
+				);
+				thread.IsBackground = true;
+				thread.Start();
 			}
 		}
 

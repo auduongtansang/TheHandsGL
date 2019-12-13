@@ -26,6 +26,13 @@ namespace TheHandsGL
 		//Tâm
 		public Tuple<double, double> center;
 
+		//Biến đánh dấu có tô màu hay không
+		public bool isColored;
+		//Màu tô
+		public Color fillColor;
+		//Tập điểm tô
+		public List<Point> fillPoints;
+
 		public Shape(Color userColor, float userWidth, shapeType userType)
 		{
 			//Hàm khởi tạo
@@ -36,6 +43,10 @@ namespace TheHandsGL
 			rasterPoints = new List<Point>();
 			controlPoints = new List<Point>();
 			extraPoint = new Point(-1, -1);
+
+			isColored = false;
+			fillColor = Color.Black;
+			fillPoints = new List<Point>();
 		}
 
 		public void Draw(OpenGL gl)
@@ -51,6 +62,20 @@ namespace TheHandsGL
 			gl.Begin(OpenGL.GL_POINTS);
 				for (int i = 0; i < rasterPoints.Count; i++)
 					gl.Vertex(rasterPoints[i].X, gl.RenderContextProvider.Height - rasterPoints[i].Y);
+			gl.End();
+		}
+
+		public void Fill(OpenGL gl)
+		{
+			//Hàm tô tưng pixel
+
+			//Set màu tô
+			gl.Color(fillColor.R, fillColor.G, fillColor.B);
+
+			//Liệt kê tập điểm tô cho OpenGL
+			gl.Begin(OpenGL.GL_POINTS);
+				for (int j = 0; j < fillPoints.Count; j++)
+					gl.Vertex(fillPoints[j].X, gl.RenderContextProvider.Height - fillPoints[j].Y);
 			gl.End();
 		}
 
