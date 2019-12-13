@@ -227,6 +227,7 @@ namespace TheHandsGL
 			}
 			shape.isColored = true;
 			isShapesChanged = true;
+			extremePoints.Clear();
 		}
 	}
 }

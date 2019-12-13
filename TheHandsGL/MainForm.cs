@@ -299,6 +299,7 @@ namespace TheHandsGL
 				//Nếu hình có tô màu => tô màu lại
 				if (shapes[choosingShape].fillColor != Color.Black)
 				{
+					shapes[choosingShape].fillPoints.Clear();
 					if (shapes[choosingShape].controlPoints.Count < 3)
 					{
 						Thread thread = new Thread
@@ -311,13 +312,14 @@ namespace TheHandsGL
 					} 
 					else
 					{
-						Thread thread = new Thread
-						(
+						//Thread thread = new Thread
+						//(
 
-								() => ScanlineFiller.Fill(shapes[choosingShape], shapes[choosingShape].fillColor, ref isShapesChanged)
-						);
-						thread.IsBackground = true;
-						thread.Start();
+						//		() => ScanlineFiller.Fill(shapes[choosingShape], shapes[choosingShape].fillColor, ref isShapesChanged)
+						//);
+						//thread.IsBackground = true;
+						//thread.Start();
+						ScanlineFiller.Fill(shapes[choosingShape], shapes[choosingShape].fillColor, ref isShapesChanged);
 					}
 				}
 
