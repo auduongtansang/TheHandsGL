@@ -299,12 +299,26 @@ namespace TheHandsGL
 				//Nếu hình có tô màu => tô màu lại
 				if (shapes[choosingShape].fillColor != Color.Black)
 				{
-					Thread thread = new Thread
-					(
-						() => FloodFiller.Fill(shapes[choosingShape], shapes[choosingShape].fillColor, ref isShapesChanged)
-					);
-					thread.IsBackground = true;
-					thread.Start();
+					if (shapes[choosingShape].controlPoints.Count < 3)
+					{
+						Thread thread = new Thread
+						(
+
+								() => FloodFiller.Fill(shapes[choosingShape], shapes[choosingShape].fillColor, ref isShapesChanged)
+						);
+						thread.IsBackground = true;
+						thread.Start();
+					} 
+					else
+					{
+						Thread thread = new Thread
+						(
+
+								() => ScanlineFiller.Fill(shapes[choosingShape], shapes[choosingShape].fillColor, ref isShapesChanged)
+						);
+						thread.IsBackground = true;
+						thread.Start();
+					}
 				}
 
 				backupShape = shapes[choosingShape].Clone();
@@ -598,6 +612,19 @@ namespace TheHandsGL
 				Thread thread = new Thread
 				(
 					() => FloodFiller.Fill(shapes[choosingShape], userColor, ref isShapesChanged)
+				);
+				thread.IsBackground = true;
+				thread.Start();
+			}
+		}
+
+		private void btnScanline_Click(object sender, EventArgs e)
+		{
+			if (choosingShape >= 0 && shapes[choosingShape].fillColor != userColor)
+			{
+				Thread thread = new Thread
+				(
+					() => ScanlineFiller.Fill(shapes[choosingShape], userColor, ref isShapesChanged)
 				);
 				thread.IsBackground = true;
 				thread.Start();
