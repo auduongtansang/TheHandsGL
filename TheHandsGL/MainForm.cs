@@ -304,22 +304,19 @@ namespace TheHandsGL
 					{
 						Thread thread = new Thread
 						(
-
-								() => FloodFiller.Fill(shapes[choosingShape], shapes[choosingShape].fillColor, ref isShapesChanged)
+							() => FloodFiller.Fill(shapes[choosingShape], shapes[choosingShape].fillColor, ref isShapesChanged)
 						);
 						thread.IsBackground = true;
 						thread.Start();
-					} 
+					}
 					else
 					{
-						//Thread thread = new Thread
-						//(
-
-						//		() => ScanlineFiller.Fill(shapes[choosingShape], shapes[choosingShape].fillColor, ref isShapesChanged)
-						//);
-						//thread.IsBackground = true;
-						//thread.Start();
-						ScanlineFiller.Fill(shapes[choosingShape], shapes[choosingShape].fillColor, ref isShapesChanged);
+						Thread thread = new Thread
+						(
+							() => ScanlineFiller.Fill(shapes[choosingShape], shapes[choosingShape].fillColor, ref isShapesChanged)
+						);
+						thread.IsBackground = true;
+						thread.Start();
 					}
 				}
 
@@ -611,6 +608,9 @@ namespace TheHandsGL
 		{
 			if (choosingShape >= 0 && shapes[choosingShape].fillColor != userColor)
 			{
+				if (shapes[choosingShape].type != Shape.shapeType.CIRCLE && shapes[choosingShape].type != Shape.shapeType.ELLIPSE && shapes[choosingShape].controlPoints.Count < 3)
+					return;
+
 				Thread thread = new Thread
 				(
 					() => FloodFiller.Fill(shapes[choosingShape], userColor, ref isShapesChanged)
@@ -622,6 +622,9 @@ namespace TheHandsGL
 
 		private void btnScanline_Click(object sender, EventArgs e)
 		{
+			if (shapes[choosingShape].type != Shape.shapeType.CIRCLE && shapes[choosingShape].type != Shape.shapeType.ELLIPSE && shapes[choosingShape].controlPoints.Count < 3)
+				return;
+
 			if (choosingShape >= 0 && shapes[choosingShape].fillColor != userColor)
 			{
 				Thread thread = new Thread
