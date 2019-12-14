@@ -297,7 +297,7 @@ namespace TheHandsGL
 			if (isTransforming == true)
 			{
 				//Nếu hình có tô màu => tô màu lại
-				if (shapes[choosingShape].fillColor != Color.Black)
+				if (shapes[choosingShape].fillColor != Color.Black && shapes[choosingShape].fillPoints.Count == 0)
 				{
 					shapes[choosingShape].fillPoints.Clear();
 					if (shapes[choosingShape].controlPoints.Count < 3)
@@ -427,7 +427,7 @@ namespace TheHandsGL
 								Tuple<double, double> vecB = new Tuple<double, double>(pEnd.X - backupShape.center.Item1, pEnd.Y - backupShape.center.Item2);
 								double sx = vecB.Item1 / vecA.Item1;
 								double sy = vecB.Item2 / vecA.Item2;
-								double s = Math.Min(sx, sy);
+								double s = Math.Max(sx, sy);
 
 								//Thiết lập phép co giãn
 								transformer.LoadIdentity();
