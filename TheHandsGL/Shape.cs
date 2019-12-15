@@ -84,12 +84,18 @@ namespace TheHandsGL
 			//Hàm sao chép hình
 
 			Shape newShape = new Shape(color, width, type);
+
 			for (int i = 0; i < controlPoints.Count; i++)
 				newShape.controlPoints.Add(new Point(controlPoints[i].X, controlPoints[i].Y));
+
 			for (int i = 0; i < rasterPoints.Count; i++)
 				newShape.rasterPoints.Add(new Point(rasterPoints[i].X, rasterPoints[i].Y));
+
 			newShape.extraPoint = new Point(extraPoint.X, extraPoint.Y);
 			newShape.center = new Tuple<double, double>(center.Item1, center.Item2);
+
+			newShape.isColored = isColored;
+			newShape.fillColor = fillColor;
 
 			return newShape;
 		}
