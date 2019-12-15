@@ -297,14 +297,27 @@ namespace TheHandsGL
 			if (isTransforming == true)
 			{
 				//Nếu hình có tô màu => tô màu lại
-				if (shapes[choosingShape].fillColor != Color.Black)
+				if (shapes[choosingShape].fillColor != Color.Black && shapes[choosingShape].fillPoints.Count == 0)
 				{
-					Thread thread = new Thread
-					(
-						() => FloodFiller.Fill(shapes[choosingShape], shapes[choosingShape].fillColor, ref isShapesChanged)
-					);
-					thread.IsBackground = true;
-					thread.Start();
+					shapes[choosingShape].fillPoints.Clear();
+					if (shapes[choosingShape].controlPoints.Count < 3)
+					{
+						Thread thread = new Thread
+						(
+							() => FloodFiller.Fill(shapes[choosingShape], shapes[choosingShape].fillColor, ref isShapesChanged)
+						);
+						thread.IsBackground = true;
+						thread.Start();
+					}
+					else
+					{
+						Thread thread = new Thread
+						(
+							() => ScanlineFiller.Fill(shapes[choosingShape], shapes[choosingShape].fillColor, ref isShapesChanged)
+						);
+						thread.IsBackground = true;
+						thread.Start();
+					}
 				}
 
 				backupShape = shapes[choosingShape].Clone();
@@ -414,7 +427,7 @@ namespace TheHandsGL
 								Tuple<double, double> vecB = new Tuple<double, double>(pEnd.X - backupShape.center.Item1, pEnd.Y - backupShape.center.Item2);
 								double sx = vecB.Item1 / vecA.Item1;
 								double sy = vecB.Item2 / vecA.Item2;
-								double s = Math.Min(sx, sy);
+								double s = Math.Max(sx, sy);
 
 								//Thiết lập phép co giãn
 								transformer.LoadIdentity();
@@ -595,9 +608,28 @@ namespace TheHandsGL
 		{
 			if (choosingShape >= 0 && shapes[choosingShape].fillColor != userColor)
 			{
+				if (shapes[choosingShape].type != Shape.shapeType.CIRCLE && shapes[choosingShape].type != Shape.shapeType.ELLIPSE && shapes[choosingShape].controlPoints.Count < 3)
+					return;
+
 				Thread thread = new Thread
 				(
 					() => FloodFiller.Fill(shapes[choosingShape], userColor, ref isShapesChanged)
+				);
+				thread.IsBackground = true;
+				thread.Start();
+			}
+		}
+
+		private void btnScanline_Click(object sender, EventArgs e)
+		{
+			if (shapes[choosingShape].type != Shape.shapeType.CIRCLE && shapes[choosingShape].type != Shape.shapeType.ELLIPSE && shapes[choosingShape].controlPoints.Count < 3)
+				return;
+
+			if (choosingShape >= 0 && shapes[choosingShape].fillColor != userColor)
+			{
+				Thread thread = new Thread
+				(
+					() => ScanlineFiller.Fill(shapes[choosingShape], userColor, ref isShapesChanged)
 				);
 				thread.IsBackground = true;
 				thread.Start();
