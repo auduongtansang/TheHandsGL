@@ -7,7 +7,7 @@
   ```bash
   C:\SharpGL.WinForms\
   ```
-  - Mở project, chọn Add -> References -> chọn cả 3 files .dll trong đường dẫn trên và bấm ok
+  - Mở project, chọn Add -> Reference -> chọn cả 3 files .dll trong đường dẫn trên và bấm ok
   
 ## Chạy bằng ứng dụng đã được build sẵn
   - Yêu cầu: Windows 10
