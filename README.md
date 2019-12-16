@@ -1,13 +1,17 @@
 ﻿# TheHandsGL
 Ứng dụng vẽ hình đơn giản dùng SharpGL (C# OpenGL wrapper)
 
-## Yêu cầu cài đặt
-  - Windows 10 SDK và Visual Studio 2019 (cập nhật Windows và Visual Studio 2019 phiên bản mới nhất là được)
-  - Tải các file .dll của SharpGL và để vào đúng đường dẫn:
+## Build tại toàn bộ project
+  - Yêu cầu: Windows 10 SDK và Visual Studio 2019 (cập nhật Windows và Visual Studio 2019 phiên bản mới nhất là được)
+  - Tải các file .dll của SharpGL và để vào đường dẫn:
   ```bash
   C:\SharpGL.WinForms\
   ```
-  - Hoặc tự tạo project mới, copy code qua rồi chỉnh sửa cho phù hợp
+  - Mở project, chọn Add -> References -> chọn cả 3 files .dll trong đường dẫn trên và bấm ok
+  
+## Chạy bằng ứng dụng đã được build sẵn
+  - Yêu cầu: Windows 10
+  - Chạy file TheHandsGL.exe trong thư mục Release
 
 ## Giấy phép
   - Đây là chương trình đơn giản phục vụ mục đích học tập
